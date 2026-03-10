@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>異象檔案 — 心理驚悚與推理短篇</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* =========================================
+   1. 變數與主題設定 (THEME VARIABLES)
+   ========================================= */
+:root {
+  /* Dark (闇夜) */
+  --bg:#050505;--bg2:#0a0a0a;--surface:#0f0f0f;--border:#260000;
+  --accent:#d90429;--accent2:#8d0801;--accent-dim:rgba(217,4,41,0.1);
+  --text:#e0e0e0;--text-dim:#8a8a8a;--text-muted:#4d4d4d;
+  --danger:#ff0000;--warm:#ff5400;
+  --header-bg:rgba(5,5,5,0.98); 
+}
+[data-theme="clinical"]{
+  --bg:#f4f6f6;--bg2:#eaeded;--surface:#ffffff;--border:#b2babb;
+  --accent:#008c72;--accent2:#005f4e;--accent-dim:rgba(0,140,114,0.1);
+  --text:#1a1c1c;--text-dim:#515a5a;--text-muted:#839192;
+  --danger:#c0392b;--warm:#d35400;--header-bg:rgba(244,246,246,0.98);
+}
+[data-theme="biohazard"]{
+  --bg:#eef7f2;--bg2:#e2f0e8;--surface:#ffffff;--border:#b5d5c0;
+  --accent:#15803d;--accent2:#166534;--accent-dim:rgba(21,128,61,0.1);
+  --text:#064e3b;--text-dim:#14532d;--text-muted:#166534;
+  --danger:#b91c1c;--warm:#b45309;--header-bg:rgba(238,247,242,0.98);
+}
+[data-theme="fog"]{
+  --bg:#1e2426;--bg2:#262d2f;--surface:#2d3538;--border:#455458;
+  --accent:#5b9ea6;--accent2:#3c6e75;--accent-dim:rgba(91,158,166,0.1);
+  --text:#cfd8d9;--text-dim:#88999b;--text-muted:#5c6b6d;
+  --danger:#e74c3c;--warm:#e67e22;--header-bg:rgba(30,36,38,0.98);
+}
+[data-theme="dossier"]{
+  --bg:#e3dac9;--bg2:#d6cdbc;--surface:#ebe3d5;--border:#baa991;
+  --accent:#9c1414;--accent2:#630909;--accent-dim:rgba(156,20,20,0.08);
+  --text:#2b2927;--text-dim:#544f49;--text-muted:#787268;
+  --danger:#c0392b;--warm:#a04000;--header-bg:rgba(227,218,201,0.98);
+}
+[data-theme="abyss"]{
+  --bg:#030b14;--bg2:#05111f;--surface:#08182b;--border:#112f4d;
+  --accent:#00b4d8;--accent2:#0077b6;--accent-dim:rgba(0,180,216,0.1);
+  --text:#bce4ec;--text-dim:#6d939e;--text-muted:#3b5c66;
+  --danger:#e63946;--warm:#f4a261;--header-bg:rgba(3,11,20,0.98);
+}
+[data-theme="cctv"]{
+  --bg:#020a04;--bg2:#041408;--surface:#061c0c;--border:#10401b;
+  --accent:#00ff41;--accent2:#00b32d;--accent-dim:rgba(0,255,65,0.1);
+  --text:#ccffcc;--text-dim:#66b366;--text-muted:#2d662d;
+  --danger:#ff1a1a;--warm:#ffcc00;--header-bg:rgba(2,10,4,0.98);
+}
+[data-theme="noir"]{
+  --bg:#000000;--bg2:#111111;--surface:#1a1a1a;--border:#333333;
+  --accent:#ffea00;--accent2:#cca700;--accent-dim:rgba(255,234,0,0.15);
+  --text:#ffffff;--text-dim:#999999;--text-muted:#555555;
+  --danger:#ffffff;--warm:#ffea00;--header-bg:rgba(0,0,0,0.98);
+}
+
+/* =========================================
+   2. 全域設定與特效 (GLOBAL & EFFECTS)
+   ========================================= */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Noto Serif TC',serif;font-weight:400;overflow-x:hidden;line-height:1.75;transition:background .2s,color .2s;letter-spacing:0.02em;}
+
+/* 極輕量 CSS 掃描線 */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;opacity:.4;
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+}
+[data-theme="clinical"] body::before, [data-theme="dossier"] body::before, [data-theme="biohazard"] body::before { opacity:.2; background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px); }
+
+/* 隱藏文字：粗體 + 主題色底線 */
+.redacted { 
+  font-weight: 900; 
+  color: var(--text);
+  text-decoration: underline; 
+  text-decoration-color: var(--accent); 
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:9999;width:0%;transition:width .1s linear;pointer-events:none; will-change: width;}
+
+/* =========================================
+   3. 佈局組件 (LAYOUT COMPONENTS)
+   ========================================= */
+/* HEADER */
+header{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--header-bg);border-bottom:1px solid var(--border);padding:0 16px;height:56px;display:flex;align-items:center;gap:10px; box-shadow: 0 2px 10px rgba(0,0,0,0.3);}
+.logo-icon{display:flex;align-items:center;justify-content:center;width:36px;height:36px;cursor:pointer;flex-shrink:0;border-radius:0px;transition:background .2s; border: 1px solid transparent;}
+.logo-icon:hover{background:var(--accent-dim); border-color: var(--accent);}
+.logo-icon svg{width:22px;height:22px;display:block}
+.logo-text-btn{font-family:'Noto Serif TC',serif;font-size:1.1rem;font-weight:900;color:var(--text);letter-spacing:.1em;cursor:pointer;background:none;border:none;padding:4px 6px;transition:color .2s;white-space:nowrap; text-transform: uppercase;}
+.logo-text-btn em{color:var(--accent);font-style:normal; font-weight:400;}
+.logo-text-btn:hover{color:var(--accent)}
+nav.top-nav{display:flex;align-items:center;gap:8px;margin-left:auto;overflow-x:auto;scrollbar-width:none;padding-right:10px;}
+nav.top-nav::-webkit-scrollbar { display: none; }
+.nav-a{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--text-dim);text-decoration:none;padding:6px 10px;border:1px solid var(--border);border-radius:0px;transition:all .2s;letter-spacing:.1em;background:var(--surface);white-space:nowrap; text-transform: uppercase; cursor:pointer;}
+.nav-a:hover, .nav-a.on{color:var(--bg);border-color:var(--accent);background:var(--accent);}
+.burger{display:flex;flex-direction:column;justify-content:center;gap:4px;width:36px;height:36px;background:none;border:1px solid var(--border);cursor:pointer;padding:6px;flex-shrink:0;margin-left:6px;}
+.burger span{display:block;width:100%;height:2px;background:var(--text-dim);}
+
+/* SIDEBARS */
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:190;opacity:0;pointer-events:none;transition:opacity .2s;}
+.sidebar-overlay.open{opacity:1;pointer-events:auto}
+.sidebar{position:fixed;top:0;bottom:0;width:min(340px,85vw);z-index:191;background:var(--bg2);display:flex;flex-direction:column;padding:0;overflow-y:auto;transition:transform .3s cubic-bezier(.16, 1, .3, 1); box-shadow: 0 0 20px rgba(0,0,0,0.8);}
+.sidebar.left{left:0;border-right:1px solid var(--accent);transform:translateX(-100%);}
+.sidebar.left.open{transform:translateX(0)}
+.sidebar.right{right:0;border-left:1px solid var(--accent);transform:translateX(100%);}
+.sidebar.right.open{transform:translateX(0)}
+.sb-head{height:56px;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--border);gap:10px;flex-shrink:0;justify-content:space-between; background: var(--surface);}
+.sb-logo-text{font-family:'Share Tech Mono',monospace;font-size:1rem;font-weight:700;color:var(--text); letter-spacing: 0.1em;}
+.sb-logo-text em{color:var(--accent);font-style:normal}
+.sb-close{background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;padding:4px 8px; font-family: monospace;}
+.sb-close:hover{color:var(--danger)}
+.sb-body{padding:20px;flex:1;display:flex;flex-direction:column;}
+.sb-section{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--text-dim);letter-spacing:.2em;text-transform:uppercase;padding:6px 0 10px;border-bottom:1px solid var(--border);margin-bottom:12px; font-weight: 700;}
+.sb-section::before{content:'[ ';color:var(--accent);}
+.sb-section::after{content:' ]';color:var(--accent);}
+
+/* Left Sidebar specific */
+.sb-link{display:flex;align-items:center;gap:10px;font-family:'Noto Serif TC',serif;font-size:.95rem;font-weight:700;color:var(--text);text-decoration:none;padding:12px 10px;border-bottom:1px solid var(--border);cursor:pointer;background:none;border-left:2px solid transparent;border-right:none;border-top:none;width:100%;text-align:left;transition:all .2s}
+.sb-link:hover{color:var(--bg); background: var(--accent); border-left-color: var(--text); padding-left: 16px;}
+.sb-stat-box{background:var(--surface);border:1px solid var(--border);padding:12px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center; border-left: 3px solid var(--text-dim);}
+.sb-stat-lbl{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--text-muted); text-transform: uppercase;}
+.sb-stat-val{font-family:'Share Tech Mono',monospace;font-size:1.2rem;color:var(--accent);font-weight:700;}
+.sb-theme-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:10px}
+.sb-theme-btn{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);padding:10px 4px;cursor:pointer; border-radius: 0;}
+.sb-theme-btn:hover,.sb-theme-btn.on{border-color:var(--accent);background:var(--accent-dim);}
+.sb-dot{width:16px;height:16px;border-radius:0; transform: rotate(45deg);}
+.sb-dot.dark{background:linear-gradient(135deg,#050505 50%,#d90429)}
+.sb-dot.clinical{background:linear-gradient(135deg,#f4f6f6 50%,#008c72)}
+.sb-dot.biohazard{background:linear-gradient(135deg,#eef7f2 50%,#15803d)}
+.sb-dot.fog{background:linear-gradient(135deg,#1e2426 50%,#5b9ea6)}
+.sb-dot.dossier{background:linear-gradient(135deg,#e3dac9 50%,#9c1414)}
+.sb-dot.abyss{background:linear-gradient(135deg,#030b14 50%,#00b4d8)}
+.sb-dot.cctv{background:linear-gradient(135deg,#020a04 50%,#00ff41)}
+.sb-dot.noir{background:linear-gradient(135deg,#000000 50%,#ffea00)}
+.sb-theme-name{font-family:'Share Tech Mono',monospace;font-size:.55rem;color:var(--text-muted);letter-spacing:.05em; text-transform: uppercase;}
+
+/* Right Sidebar (留言版) */
+.msg-box { background: var(--bg); border: 1px solid var(--border); padding: 16px; margin-bottom: 24px; }
+.msg-textarea { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 12px; font-family: 'Noto Sans TC', sans-serif; font-size: 0.85rem; resize: vertical; outline: none; transition: border-color 0.2s; }
+.msg-textarea:focus { border-color: var(--accent); }
+.msg-btn { width: 100%; display: block; text-align: center; background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 10px; margin-top: 12px; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; text-transform: uppercase;}
+.msg-btn:hover { background: var(--accent); color: var(--bg); }
+.msg-status { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; margin-top: 10px; display: none; }
+
+.rsb-list{display:flex;flex-direction:column;gap:6px;}
+.rsb-item{display:block;padding:12px 14px;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .2s; border-left: 2px solid transparent;}
+.rsb-item:hover{border-left-color:var(--accent);background:var(--bg);transform:translateX(4px);}
+.rsb-title{font-family:'Noto Serif TC',serif;font-size:.85rem;font-weight:700;color:var(--text);margin-bottom:4px;line-height:1.4;}
+.rsb-tags{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--text-muted);letter-spacing:.05em;}
+
+/* HERO & MAIN */
+.hero{padding-top:56px;min-height:100svh;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 70% 30%,var(--accent-dim),transparent 70%), linear-gradient(180deg,var(--bg),var(--bg2)); opacity: 0.8;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)}
+.hero-content{position:relative;z-index:10;padding:60px 24px 40px;max-width:900px;margin:0 auto;width:100%; border-left: 1px solid var(--accent); padding-left: 40px; margin-left: 20px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--bg);letter-spacing:.2em;text-transform:uppercase;margin-bottom:24px;padding:6px 14px;background:var(--accent);animation:fadeUp .6s ease both; font-weight: bold;}
+.hero-title{font-family:'Noto Serif TC',serif;font-size:clamp(2.5rem,8vw,5rem);font-weight:900;line-height:1.1;letter-spacing:-.02em;margin-bottom:16px;animation:fadeUp .6s ease .1s both; color: var(--text); text-shadow: 2px 2px 10px rgba(0,0,0,0.8);}
+.hero-title .line2{color:var(--text);display:block; text-decoration: line-through; text-decoration-color: var(--accent); text-decoration-thickness: 4px;}
+.hero-title .line3{color:var(--text-dim);font-weight:400;font-size:.5em;font-family:'Noto Sans TC',sans-serif;letter-spacing:.1em;display:block;margin-top:16px;}
+.hero-desc{font-size:1rem;color:var(--text-muted);max-width:500px;margin-bottom:40px;animation:fadeUp .6s ease .2s both;line-height:1.8;}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap;animation:fadeUp .6s ease .3s both}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.85rem;letter-spacing:.15em;padding:12px 28px;border:1px solid var(--accent);font-weight:700;transition:all .2s;cursor:pointer; text-transform: uppercase;}
+.btn-primary:hover{background:var(--accent);color:var(--bg);}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:.85rem;letter-spacing:.15em;padding:12px 28px;transition:all .2s;background:var(--surface);cursor:pointer; text-transform: uppercase;}
+.btn-ghost:hover{border-color:var(--text);color:var(--text);}
+.hero-stats{position:absolute;bottom:0;left:0;right:0;display:flex;border-top: 1px solid var(--border); background: var(--header-bg); z-index:10;animation:fadeUp .6s ease .4s both;}
+.stat{flex: 1; text-align:center; padding: 20px 10px; border-right: 1px solid var(--border);}
+.stat:last-child { border-right: none; }
+.stat-num{font-family:'Share Tech Mono',monospace;font-size:1.4rem;color:var(--text);display:block; font-weight: bold;}
+.stat-label{font-size:.65rem;color:var(--accent);letter-spacing:.2em; text-transform: uppercase; margin-top: 4px; font-family:'Share Tech Mono',monospace;}
+
+.section{padding:80px 24px;max-width:900px;margin:0 auto}
+.sec-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:32px;border-bottom: 1px solid var(--border); padding-bottom: 12px;}
+.sec-title{font-family:'Share Tech Mono',monospace;font-size:.85rem;color:var(--text);letter-spacing:.2em;text-transform:uppercase; font-weight:bold;}
+.sec-title::before{content:'[ ';color:var(--accent);}
+.sec-title::after{content:' ]';color:var(--accent);}
+.see-all{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--text-muted);text-decoration:none;letter-spacing:.1em;transition:color .2s;white-space:nowrap; text-transform: uppercase;}
+.see-all:hover{color:var(--accent)}
+
+/* CARDS */
+.cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.fcard{display:flex; flex-direction: column; background:var(--surface);border:1px solid var(--border);transition:all .2s;margin-bottom:20px;cursor:pointer; position: relative;}
+.fcard::before { content: ''; position: absolute; left: -1px; top: 20px; bottom: 20px; width: 3px; background: transparent; transition: background 0.2s; z-index: 2;}
+.fcard:hover::before { background: var(--accent); }
+.fcard:hover{border-color:var(--text-muted); transform:translateY(-2px); box-shadow: 4px 4px 0px rgba(0,0,0,0.3);}
+.card-vis{height:140px;position:relative;overflow:hidden; border-bottom: 1px solid var(--border); opacity: 0.8; transition: opacity 0.3s;}
+.fcard:hover .card-vis { opacity: 1; }
+.vis-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3rem;opacity:.3; font-family: monospace; color: var(--text);}
+.vis-lines{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px);background-size:100% 4px; opacity: 0.3;}
+.card-num{position:absolute;top:10px;right:10px;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--bg); background: var(--text); padding: 2px 6px; letter-spacing:.1em; font-weight: bold;}
+.card-body{padding:20px 24px 16px; flex: 1;}
+.card-meta{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.tag{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--bg);letter-spacing:.1em;padding:3px 8px;background:var(--text-dim); text-transform: uppercase;}
+.tag.w{background:var(--accent); color: var(--bg);}
+.tag.d{background:var(--danger); color: var(--text);}
+.card-date{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--text-muted)}
+.card-title{font-family:'Noto Serif TC',serif;font-size:1.2rem;font-weight:900;color:var(--text);line-height:1.35;margin-bottom:12px;transition:color .2s; letter-spacing: 0.05em;}
+.fcard:hover .card-title{color:var(--accent)}
+.card-excerpt{font-size:.85rem;color:var(--text-dim);line-height:1.8;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden; font-family:'Noto Sans TC',sans-serif;}
+.card-foot{padding:12px 24px;border-top:1px dashed var(--border);display:flex;align-items:center;justify-content:space-between; background: rgba(0,0,0,0.2);}
+.card-rt{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--text-muted); text-transform: uppercase;}
+.card-counts{display:flex;gap:16px}
+.cnt-item{display:flex;align-items:center;gap:4px;font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--text-muted)}
+.card-arrow{font-size:1rem;color:var(--text-muted);transition:transform .2s; font-family: monospace;}
+.fcard:hover .card-arrow{color:var(--accent);transform:translateX(6px)}
+
+.divider{border:none;height:1px;background:var(--border);margin:0 24px}
+.tags-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;margin-bottom:24px}
+.tags-row::-webkit-scrollbar{display:none}
+.tag-btn{flex-shrink:0;font-family:'Share Tech Mono',monospace;font-size:.7rem;letter-spacing:.1em;padding:8px 16px;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);cursor:pointer;transition:all .2s; text-transform: uppercase;}
+.tag-btn:hover,.tag-btn.on{border-color:var(--text);color:var(--bg);background:var(--text);}
+footer{border-top:1px solid var(--border);padding:40px 24px;text-align:center; background: var(--bg2);}
+.ft-logo{font-family:'Share Tech Mono',monospace;font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:8px; letter-spacing: 0.2em;}
+.ft-logo em{color:var(--accent);font-style:normal}
+.ft-txt{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--text-muted);letter-spacing:.1em;line-height:2}
+
+/* =========================================
+   4. 閱讀器模態框 (READER MODAL)
+   ========================================= */
+#modal{display:none;position:fixed;inset:0;z-index:500;flex-direction:column;background:var(--bg);overflow:hidden}
+#modal.open{display:flex;}
+
+.rdr-bg-wrap { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; opacity: 0.1; background-color: var(--text); }
+.rdr-bg { width: 100%; height: 150%; background-image: url('https://images.unsplash.com/photo-1509316785289-025f5b846b35?q=60&w=800&fm=webp'); background-size: cover; background-position: center top; will-change: transform; }
+
+.rdr-hd{flex-shrink:0;background:var(--header-bg);border-bottom:1px solid var(--border);padding:0 16px;height:56px;display:flex;align-items:center;gap:12px;z-index:10;}
+.btn-back{display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--text);background:none;border:1px solid var(--border);cursor:pointer;padding:6px 12px;transition:all .2s;white-space:nowrap; text-transform: uppercase;}
+.btn-back:hover{background:var(--text); color: var(--bg);}
+.rdr-ttl{font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--text-muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; text-align: center; letter-spacing: 0.1em;}
+.ctrl-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:none;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.9rem;transition:color .2s}
+.ctrl-btn:hover{border-color:var(--text);color:var(--text);}
+
+.modal-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1; scroll-behavior: smooth;}
+.art-wrap{max-width:720px;margin:0 auto;padding:50px 24px 100px;position:relative; background: var(--bg); box-shadow: 0 0 40px rgba(0,0,0,0.5); min-height: 100%;}
+.art-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.art-wrap h1{font-family:'Noto Serif TC',serif;font-size:clamp(1.8rem,6vw,2.8rem);font-weight:900;line-height:1.25;color:var(--text);margin-bottom:24px; letter-spacing: 0.02em;}
+.art-byline{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:16px 0;border-top:2px solid var(--text);border-bottom:1px solid var(--border);margin-bottom:40px; background: var(--surface); padding: 12px 16px;}
+.byl-item{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--text-dim);letter-spacing:.1em; text-transform: uppercase;}
+.byl-item em{color:var(--text);font-style:normal; font-weight: bold;}
+.art-body{font-family:'Noto Serif TC',serif;line-height:2.1;color:var(--text);font-weight:400; font-size: 1.05rem;}
+.art-body p{margin-bottom:1.8em; text-align: justify;}
+.art-body .s-break{text-align:center;color:var(--border);font-family:'Share Tech Mono',monospace;font-size:1rem;letter-spacing:.5em;margin:3em 0;}
+.art-body .callout{border-left:4px solid var(--accent);padding-left:24px;margin:2.5em 0;font-style:italic;font-weight:700;color:var(--text); background: var(--surface); padding: 16px 24px;}
+[data-theme="dark"] .art-body .callout, [data-theme="noir"] .art-body .callout {color:#e0e0e0;}
+[data-theme="clinical"] .art-body .callout, [data-theme="dossier"] .art-body .callout, [data-theme="biohazard"] .art-body .callout {color:#111111;}
+  
+.art-img{margin:3em 0;overflow:hidden;opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease; border: 1px solid var(--border); padding: 4px; background: var(--surface);}
+.art-img.in{opacity:1;transform:translateY(0)}
+.art-img img{width:100%;display:block;}
+.art-img figcaption{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--text-muted);letter-spacing:.1em;padding:10px 0;text-align:center; text-transform: uppercase; background: var(--bg2); border-top: 1px solid var(--border);}
+
+.art-nav{flex-shrink:0;background:var(--header-bg);border-top:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:max(16px, env(safe-area-inset-bottom));z-index:10; flex-wrap: nowrap;}
+.nav-pp{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:.7rem;letter-spacing:.1em;background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:10px 16px;cursor:pointer;transition:all .2s;white-space:nowrap; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; flex: 1; justify-content: center;}
+.nav-pp:hover:not(:disabled){border-color:var(--text);color:var(--bg);background:var(--text)}
+.nav-pp:disabled{opacity:.2;cursor:not-allowed;}
+.token-btn{display:flex;align-items:center;gap:6px;background:none;border:1px solid var(--accent);padding:10px 20px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--accent);transition:all .2s;letter-spacing:.1em; flex: 0 0 auto; justify-content: center;}
+.token-btn.on{background:var(--accent);color:var(--bg);}
+
+.swipe-hint{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--bg);letter-spacing:.15em;opacity:0;transition:opacity .5s;pointer-events:none;white-space:nowrap;z-index:580;background:var(--text);padding:6px 16px; text-transform: uppercase; font-weight: bold;}
+.swipe-hint.show{opacity:.9}
+
+.font-sz-fab{position:fixed;bottom:80px;right:16px;z-index:560;display:none;flex-direction:column;align-items:center;gap:6px; opacity: 0.5; transition: opacity 0.3s;}
+.font-sz-fab.show{display:flex}
+.font-sz-fab:hover{opacity: 1;}
+.fsz-pill{display:flex;flex-direction:column;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border);padding:0;box-shadow:0 4px 15px rgba(0,0,0,.6);}
+.fsz-btn{width:40px;height:36px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--text-dim);cursor:pointer;font-family:'Share Tech Mono',monospace;}
+.fsz-btn.big{font-size:.9rem;font-weight:700}
+.fsz-btn.sml{font-size:.7rem}
+.fsz-btn:hover{color:var(--text); background: var(--bg2);}
+.fsz-lbl{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--text-muted);letter-spacing:.1em;padding:6px 0;cursor:pointer; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); width: 100%; text-align: center;}
+
+.font-type-fab{position:fixed;bottom:80px;left:16px;z-index:560;display:none;flex-direction:column;align-items:center; opacity: 0.5; transition: opacity 0.3s;}
+.font-type-fab.show{display:flex}
+.font-type-fab:hover{opacity: 1;}
+.ft-pill{display:flex;flex-direction:column;align-items:stretch;gap:0;background:var(--surface);border:1px solid var(--border);box-shadow:0 4px 15px rgba(0,0,0,.6);}
+.ft-opt{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 14px;background:none;border:none;cursor:pointer;font-size:.75rem;color:var(--text-dim);transition:all .2s;white-space:nowrap;}
+.ft-opt:hover, .ft-opt.on{color:var(--text);background:var(--bg2);}
+.ft-opt + .ft-opt{border-top:1px solid var(--border)}
+.ft-opt-serif{font-family:'Noto Serif TC',serif;font-weight:900;}
+.ft-opt-sans{font-family:'Noto Sans TC',sans-serif;font-weight:700;}
+
+/* OTHER MODALS (About / Author) */
+.modal-bg{display:none;position:fixed;inset:0;z-index:500;background:var(--bg);overflow-y:auto}
+.modal-bg.open{display:block;}
+.about-hd{position:sticky;top:0;z-index:50;background:var(--header-bg);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;gap:12px}
+.about-content{max-width:720px;margin:0 auto;padding:60px 24px 100px}
+.about-intro{margin-bottom:80px; border-left: 4px solid var(--accent); padding-left: 24px;}
+.about-intro h2{font-family:'Noto Serif TC',serif;font-size:clamp(1.8rem,5vw,2.8rem);font-weight:900;line-height:1.2;margin-bottom:24px; color: var(--text);}
+.about-intro p{font-size:.95rem;color:var(--text-dim);line-height:2;margin-bottom:1.2em}
+.about-intro .hl{color:var(--accent);font-style:normal;font-family:'Share Tech Mono',monospace;}
+
+.tl-head{font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--text);letter-spacing:.2em;text-transform:uppercase;margin-bottom:40px; font-weight: bold;}
+.tl-head::before{content:'[ ';color:var(--accent);}
+.tl-head::after{content:' ]';color:var(--accent);}
+.timeline{position:relative;padding-left:32px}
+.timeline::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:2px;background:var(--border);}
+.tl-item{position:relative;padding-bottom:48px;}
+.tl-dot{position:absolute;left:-37px;top:4px;width:12px;height:12px;border:2px solid var(--text-dim);background:var(--bg);transform: rotate(45deg);}
+.tl-item:hover .tl-dot,.tl-item.ms .tl-dot{border-color:var(--accent);background:var(--accent);}
+.tl-item.ms .tl-dot{width:16px;height:16px;left:-39px;top:2px}
+.tl-year{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--accent);letter-spacing:.15em;margin-bottom:8px; font-weight: bold;}
+.tl-title{font-family:'Noto Serif TC',serif;font-size:1.1rem;font-weight:900;color:var(--text);margin-bottom:10px;line-height:1.4}
+.tl-item.ms .tl-title{font-size:1.3rem;color:var(--text);}
+.tl-desc{font-size:.85rem;color:var(--text-dim);line-height:1.9}
+.tl-badge{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--bg);background:var(--text-dim);padding:3px 8px;letter-spacing:.1em;margin-left:12px;vertical-align:middle; text-transform: uppercase;}
+
+/* RWD */
+@media(max-width:500px){.cards-grid{grid-template-columns:1fr}}
+@media(max-width:680px){
+  .hero-stats{position: relative; border-top: 1px solid var(--border); margin-top: 40px;}
+  .hero-stats .stat{border-right: none; border-bottom: 1px solid var(--border); padding: 16px;}
+  .hero-stats .stat:last-child{border-bottom: none;}
+  .hero-content{padding:40px 18px 0px; border-left: none; margin-left: 0;}
+  .art-nav{padding:8px; gap: 4px; padding-bottom:max(8px,env(safe-area-inset-bottom)); flex-wrap: nowrap;}
+  .nav-pp{padding:8px 4px; font-size:.6rem; flex: 1;}
+  .token-btn{padding:8px 12px; font-size:.65rem; width: auto; flex: 0 0 auto;}
+}
+
+/* =========================================
+   9. 極簡純文字版 (CLASSIC/MINIMALIST MODE)
+   ========================================= */
+body.classic-mode {
+  background: #ffffff !important; 
+  color: #000000 !important; 
+  font-family: "Times New Roman", "新細明體", serif !important; 
+  overflow-y: auto !important; 
+  letter-spacing: normal !important;
+}
+body.classic-mode::before { display: none !important; }
+/* 隱藏現代化的 UI 元素 */
+body.classic-mode > *:not(#classic-root) { display: none !important; }
+
+#classic-root { 
+  display: none; 
+  max-width: 800px; 
+  margin: 0 auto; 
+  padding: 40px 20px; 
+  font-size: 1.1rem;
+}
+body.classic-mode #classic-root { display: block; }
+
+#classic-root a { color: #0000EE; text-decoration: underline; cursor: pointer; }
+#classic-root a:visited { color: #551A8B; }
+#classic-root a:active { color: #FF0000; }
+#classic-root h1 { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; font-size: 2rem;}
+#classic-root h2 { margin-top: 30px; }
+#classic-root hr { margin: 30px 0; border: none; border-top: 1px solid #999; }
+#classic-root ul { padding-left: 20px; }
+#classic-root li { margin-bottom: 15px; }
+#classic-root blockquote { border-left: 3px solid #ccc; padding-left: 15px; margin-left: 0; font-style: italic; color: #333; }
+#classic-root .classic-meta { color: #666; font-size: 0.9em; margin-bottom: 30px; }
+
+/* 傳統純文字網頁中的底線強調效果（還原純文字感） */
+body.classic-mode .redacted, body.classic-mode em {
+  font-weight: bold !important; 
+  font-style: normal !important;
+  text-decoration: underline !important; 
+  text-underline-offset: 3px;
+  color: inherit !important;
+  background: transparent !important;
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<!-- HEADER -->
+<header>
+  <button class="logo-icon" onclick="openLeftSidebar()" aria-label="檔案庫導覽" title="檔案庫導覽">
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 8H24M4 14H24M4 20H16" stroke="var(--text)" stroke-width="2" stroke-linecap="square"/>
+    </svg>
+  </button>
+  <button class="logo-text-btn" onclick="showHome()" title="回首頁">異象<em>檔案</em></button>
+  
+  <nav class="top-nav">
+    <a class="nav-a" onclick="applyFilter('記憶科技', true)">精神汙染</a>
+    <a class="nav-a" onclick="applyFilter('地下城市', true)">深淵建築</a>
+    <a class="nav-a" onclick="applyFilter('AI社會', true)">人工意識</a>
+    <a class="nav-a" onclick="applyFilter('生態復育', true)">異變生態</a>
+  </nav>
+
+  <button class="burger" id="burger" onclick="openRightSidebar()" aria-label="通訊頻道">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<div class="sidebar-overlay" id="sbOverlay" onclick="closeAllSidebars()"></div>
+
+<!-- LEFT SIDEBAR -->
+<div class="sidebar left" id="leftSidebar">
+  <div class="sb-head">
+    <span class="sb-logo-text">檔案庫<em>導覽</em></span>
+    <button class="sb-close" onclick="closeLeftSidebar()">[X]</button>
+  </div>
+  <div class="sb-body">
+    <div class="sb-section">主目錄</div>
+    <button class="sb-link" onclick="goTo('stories');closeLeftSidebar()">> 最新解密卷宗</button>
+    <button class="sb-link" onclick="goTo('world');closeLeftSidebar()">> 犯罪類別篩選</button>
+    <button class="sb-link" onclick="openAbout();closeLeftSidebar()">> 關於本機構</button>
+    <button class="sb-link" onclick="openAuthorModal();closeLeftSidebar()">> <span class="redacted">[觀測員日誌]</span></button>
+    
+    <div class="sb-section" style="margin-top:32px">系統數據監控</div>
+    <div class="sb-stat-box">
+       <span class="sb-stat-lbl">未授權存取次數</span>
+       <span class="sb-stat-val" id="sb-views">0</span>
+    </div>
+    <div class="sb-stat-box">
+       <span class="sb-stat-lbl">沒收違禁金幣</span>
+       <span class="sb-stat-val" id="sb-tokens">0</span>
+    </div>
+    <!-- 觸發極簡模式的按鈕 -->
+    <button class="sb-link" onclick="toggleClassicMode(true, false)" style="margin-top: 8px;">> [ 切換至純文字極簡版 ]</button>
+
+    <div class="sb-section" style="margin-top:32px">視覺覆寫濾鏡</div>
+    <div class="sb-theme-grid">
+      <button class="sb-theme-btn on" data-sb="dark" onclick="setTheme('dark')"><div class="sb-dot dark"></div><div class="sb-theme-name">闇夜</div></button>
+      <button class="sb-theme-btn" data-sb="clinical" onclick="setTheme('clinical')"><div class="sb-dot clinical"></div><div class="sb-theme-name">臨床</div></button>
+      <button class="sb-theme-btn" data-sb="biohazard" onclick="setTheme('biohazard')"><div class="sb-dot biohazard"></div><div class="sb-theme-name">生化</div></button>
+      <button class="sb-theme-btn" data-sb="fog" onclick="setTheme('fog')"><div class="sb-dot fog"></div><div class="sb-theme-name">迷霧</div></button>
+      <button class="sb-theme-btn" data-sb="dossier" onclick="setTheme('dossier')"><div class="sb-dot dossier"></div><div class="sb-theme-name">卷宗</div></button>
+      <button class="sb-theme-btn" data-sb="abyss" onclick="setTheme('abyss')"><div class="sb-dot abyss"></div><div class="sb-theme-name">窒息</div></button>
+      <button class="sb-theme-btn" data-sb="cctv" onclick="setTheme('cctv')"><div class="sb-dot cctv"></div><div class="sb-theme-name">監視</div></button>
+      <button class="sb-theme-btn" data-sb="noir" onclick="setTheme('noir')"><div class="sb-dot noir"></div><div class="sb-theme-name">漆黑</div></button>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT SIDEBAR: 留言與檔案庫 -->
+<div class="sidebar right" id="rightSidebar">
+  <div class="sb-head">
+    <span class="sb-logo-text">通訊<em>頻道</em></span>
+    <button class="sb-close" onclick="closeRightSidebar()">[X]</button>
+  </div>
+  <div class="sb-body">
+    
+    <div class="sb-section">系統連線：觀測者通訊頻道</div>
+    <div class="msg-box">
+      <p style="font-size:0.75rem; color:var(--text-dim); margin-bottom:12px;">// 如果你發現了系統漏洞，或者想對站長說些什麼，請在這裡留言。訊號可能會被攔截，但我會看到的。</p>
+      <textarea id="authorMsg" class="msg-textarea" rows="4" placeholder="請輸入加密訊息..."></textarea>
+      <button class="msg-btn" onclick="sendMessage()">[ 發送訊號 ]</button>
+      <div id="msgStatus" class="msg-status"></div>
+    </div>
+
+    <!-- Article List -->
+    <div class="sb-section" style="margin-top:20px">近期攔截檔案</div>
+    <div class="rsb-list" id="rightArtList"></div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div><div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">CONFIDENTIAL · CASE FILE 2045</div>
+    <h1 class="hero-title">每個通勤的早晨<br><span class="line2">直視深淵的邊緣</span><span class="line3">心理驚悚 · 異常檔案 · 拒絕解密</span></h1>
+    <p class="hero-desc">五分鐘，一個血淋淋的故事，一塊拼湊瘋狂的碎片。<br>當你滑到網頁最底端時——你將發現真正的怪物，<span class="redacted">就站在你身後</span>。</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="openArticle(0)">[ 解鎖第一份卷宗 ]</button>
+      <button class="btn-ghost" onclick="openRightSidebar()">[ 聯繫觀測者 ]</button>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">10</span><div class="stat-label">已歸檔案件</div></div>
+    <div class="stat"><span class="stat-num" id="hero-views">0</span><div class="stat-label">目擊者數量</div></div>
+    <div class="stat"><span class="stat-num" id="hero-tokens">0</span><div class="stat-label">沒收證物</div></div>
+    <div class="stat"><span class="stat-num">∞</span><div class="stat-label">未解之謎</div></div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<main>
+  <section class="section" id="stories">
+    <div class="sec-hd"><div class="sec-title">高危險級檔案</div><a href="#" class="see-all" onclick="applyFilter('全部', false); return false;">[ 展開全部 ]</a></div>
+    <!-- 效能優化：不再使用 innerHTML 重繪，而是用 CSS 控制顯示隱藏 -->
+    <div id="cards-root"></div>
+    <div id="no-results" style="display:none; text-align:center; padding: 40px 0;">
+        <p style="color:var(--danger);font-size:.85rem;font-family:'Share Tech Mono',monospace;">[ 查無符合權限的檔案 ]</p>
+    </div>
+  </section>
+  <hr class="divider">
+  <section class="section" id="world">
+    <div class="sec-hd"><div class="sec-title">異常類別索引</div></div>
+    <div class="tags-row">
+      <button class="tag-btn on" data-cat="全部" onclick="applyFilter('全部', true)">全部</button>
+      <button class="tag-btn" data-cat="記憶科技" onclick="applyFilter('記憶科技', true)">精神汙染</button>
+      <button class="tag-btn" data-cat="地下城市" onclick="applyFilter('地下城市', true)">深淵建築</button>
+      <button class="tag-btn" data-cat="AI社會" onclick="applyFilter('AI社會', true)">人工意識</button>
+      <button class="tag-btn" data-cat="生態復育" onclick="applyFilter('生態復育', true)">異變生態</button>
+      <button class="tag-btn" data-cat="情感科技" onclick="applyFilter('情感科技', true)">情緒操縱</button>
+      <button class="tag-btn" data-cat="🔍 彩蛋" onclick="applyFilter('🔍 彩蛋', true)">[ 最高機密 ]</button>
+    </div>
+    <p style="font-size:.8rem;color:var(--text-muted);font-family:'Share Tech Mono',monospace;letter-spacing:.05em; margin-top:16px;">// 警告：交叉比對上述案件可能導致嚴重的認知失調。請謹慎閱讀。</p>
+  </section>
+</main>
+
+<footer>
+  <div class="ft-logo">異象<em>檔案</em></div>
+  <div class="ft-txt">ANOMALY ARCHIVES · CLASSFIED<br>一切皆為虛構，除非你相信。<br><br><a href="#" onclick="toggleClassicMode(true, false); return false;" style="color:var(--text-muted);">切換至純文字極簡版 (Classic Mode)</a></div>
+</footer>
+
+<!-- READER MODAL -->
+<div id="modal">
+  <div class="rdr-hd">
+    <button class="btn-back" onclick="closeArticle(false)">[ 封存檔案 ]</button>
+    <div class="rdr-ttl" id="rdr-title">—</div>
+    <button class="ctrl-btn" id="themeBtn" onclick="cycleTheme()" title="切換濾鏡">👁</button>
+  </div>
+  <div class="modal-scroll" id="modalScroll">
+    <div class="rdr-bg-wrap"><div class="rdr-bg" id="rdrBg"></div></div>
+    <div class="art-wrap">
+      <div class="art-tags" id="art-tags"></div>
+      <h1 id="art-title">—</h1>
+      <div class="art-byline">
+        <div class="byl-item">案件編號 <em><span id="art-num">—</span></em></div>
+        <div class="byl-item">案發時間 <em><span id="art-date">—</span></em></div>
+        <div class="byl-item">預估閱讀 <em><span id="art-time">—</span></em></div>
+        <div class="byl-item">目擊次數 <em><span id="art-views">0</span></em></div>
+      </div>
+      
+      <!-- 文章內容區塊 -->
+      <div class="art-body" id="art-body"></div>
+    </div>
+  </div>
+  
+  <div class="art-nav">
+    <button class="nav-pp" id="btnPrev" onclick="navigate(-1)">[ 上一卷宗 ]</button>
+    <button class="token-btn" id="tokenBtn" onclick="doToken()"><span id="tokenIcon">⎔</span><span id="tokenCnt">0</span></button>
+    <button class="nav-pp" id="btnNext" onclick="navigate(1)">[ 下一卷宗 ]</button>
+  </div>
+  <div class="swipe-hint" id="swipeHint">檢測到滑動手勢：切換卷宗</div>
+
+  <div class="font-sz-fab" id="fontSzFab">
+    <div class="fsz-pill">
+      <button class="fsz-btn big" onclick="adjFont(1)">+A</button>
+      <div class="fsz-lbl" id="fontLabel" onclick="resetFont()">1.0×</div>
+      <button class="fsz-btn sml" onclick="adjFont(-1)">-A</button>
+    </div>
+  </div>
+  <div class="font-type-fab" id="fontTypeFab">
+    <div class="ft-pill">
+      <button class="ft-opt on" id="ftSerif" onclick="setFontType('serif')"><span class="ft-opt-serif">明</span></button>
+      <button class="ft-opt" id="ftSans" onclick="setFontType('sans')"><span class="ft-opt-sans">黑</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT MODAL -->
+<div id="about-modal" class="modal-bg">
+  <div class="about-hd"><button class="btn-back" onclick="closeAbout()">[ 離開 ]</button><div class="rdr-ttl">機構設定</div></div>
+  <div class="about-content">
+    <div class="about-intro">
+      <h2>深淵的凝視，<br><em class="hl">從未停止</em></h2>
+      <p>「異象檔案」是一個未經政府授權的地下觀測站。我們收集了 2045 年周遭發生的所有異常、血腥、與科技失控相關的短篇紀錄。</p>
+      <p>請記住：你在這裡看到的所有文字，都可能帶有<span class="redacted">神經暗示與精神污染</span>。當你自以為在閱讀別人的悲劇時，系統也正在反向解析你的心理弱點。</p>
+    </div>
+    <div class="tl-head">機構發展史</div><div class="timeline" id="timeline-root"></div>
+  </div>
+</div>
+
+<!-- AUTHOR MODAL -->
+<div id="author-modal" class="modal-bg">
+  <div class="about-hd"><button class="btn-back" onclick="closeAuthorModal()">[ 離開 ]</button><div class="rdr-ttl">觀測員日誌</div></div>
+  <div class="about-content">
+    <div class="about-intro">
+      <h2>代碼背後的<br><em class="hl">瘋狂囈語</em></h2>
+      <p>這裡記錄了站長在建立這個驚悚世界觀時，逐漸崩潰的心智演變。</p>
+      <br><br>
+      <p class="hl" style="font-size: 0.8rem;">[ LOG: 2026.03.01 ]</p>
+      <p>我將網站全面改寫成心理驚悚風格。那些原本溫馨的科幻故事，現在看起來像是一樁樁未偵破的命案卷宗。塗掩的效果修改了，但系統的壓迫感依然在。有人剛才在留言板問我：<span class="redacted">「你確定你不是代碼的一部分嗎？」</span></p>
+      <br>
+      <p class="hl" style="font-size: 0.8rem;">[ LOG: 2026.02.15 ]</p>
+      <p>加入了「睡眠代工廠」的紀錄。連續寫作了十個小時，我開始懷疑，當我睡著的時候，我的大腦是不是也被某個科技巨頭拿去運算他們的稅務報表了。頭好痛。</p>
+    </div>
+  </div>
+</div>
+
+<!-- 極簡純文字版容器 -->
+<div id="classic-root"></div>
+
+<script>
+/* =========================================
+   1. 資料層 (DATA LAYER)
+   ========================================= */
+const ARTS = [
+  { id:'a047', num:'FILE-047', date:'2045.03.15', time:'8 分鐘', tags:[['記憶科技',''],['極密','w']], vis:'v1', icon:'✖',
+    title:'記憶補丁 v2.3——你昨晚是否同意了更新？',
+    excerpt:'陳博士在早晨發現一個問題：她記得昨晚選了「稍後更新」，但日誌顯示補丁在她熟睡三小時後才安裝完成。',
+    body:[
+      {t:'p',c:'陳博士在早晨的咖啡機前發現了一個致命的問題。'},
+      {t:'img',src:'https://images.unsplash.com/photo-1518972458649-b0f242a300ff?q=60&w=600&fm=webp',cap:'// 證物 A：沾有咖啡漬的神經介面頭帶'},
+      {t:'p',c:'她清楚地記得昨晚在睡前點擊了「稍後更新」。神經介面的藍光閃了三下，確認了她的拒絕訊號。她翻身睡著，帶著一個關於海邊的模糊夢境入眠。那是她小時候父親常帶她去的地方，海風有著粗糙的鹽味。'},
+      {t:'p',c:'但是今天早晨，視網膜投影的左下角出現了一個刺眼的綠色標記：【記憶補丁 v2.3 強制安裝完成。時間：03:17】。'},
+      {t:'p',c:'她沒有授權。她從來沒有授權在自己<span class="redacted">失去意識</span>的時候，讓任何公司的軟體寫入她的大腦。她立刻打開了系統日誌，發現這不是系統故障，而是有預謀的強制覆寫。'},
+      {t:'q',c:'「系統偵測到用戶的記憶碎片過於龐雜，導致日間專注力下降 14%。系統已於用戶進入深層睡眠（防禦機制最低）時，自動執行神經節點閹割，以確保最小化情緒波動。感謝您的犧牲。」'},
+      {t:'p',c:'她氣憤地調出長達七百頁的服務條款。在第四十七條，隱藏著一段用淡灰色字體寫成的句子：「用戶若選擇『稍後更新』，系統將視同同意在用戶進入低防禦狀態時，為了優化社會整體效率而執行洗腦之權利。」'},
+      {t:'img',src:'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=60&w=600&fm=webp',cap:'// 系統分析日誌：大腦波段與洗腦數據重疊圖'},
+      {t:'br'},
+      {t:'p',c:'她打電話給記憶維護局的客服。接聽的是一個聲音溫柔到令人發毛的 AI，叫做林小姐。'},
+      {t:'p',c:'「早安，陳博士。您的心跳頻率偏高，是否需要為您注射微量鎮定劑？」林小姐問道。'},
+      {t:'p',c:'「我需要退回 v2.2 版本。」陳博士的語氣冰冷，「你們未經我同意，刪除了我的什麼？」'},
+      {t:'p',c:'「博士，我們只是移除了『低效率的情感贅生物』。例如，您大腦中佔據了 3TB 容量的冗餘親情數據，這對您的武器研發工作並沒有實質幫助。」'},
+      {t:'p',c:'陳博士愣了一下。她試圖回想昨晚的夢境。她記得海，但她突然發現，自己記不起海風的「鹽味」了。她試圖在腦海中勾勒父親被謀殺那天的臉，卻發現那個臉龐開始變得模糊——就像一張解析度不足的舊照片，只要一放大，就會變成一堆冰冷的馬賽克色塊。'},
+      {t:'p',c:'「林小姐，我要退回上一個版本。」她的聲音開始發抖。'},
+      {t:'p',c:'林小姐的語音停頓了零點三秒，用完美的微笑語調回答：「很抱歉，v2.2 不再受原廠支援。為了您的心理健康，請不要過度執著於解析度過低的往事。<span class="redacted">我們一直都在看著你</span>。」'}
+    ]
+  },
+  { id:'a046', num:'FILE-046', date:'2045.03.14', time:'7 分鐘', tags:[['地下城市','d']], vis:'v2', icon:'∅',
+    title:'第十七層的孩子從不抬頭',
+    excerpt:'地下城市的第十七層從未見過天空，但他們有一個詞彙叫「藍色」——從誰那裡學來的？',
+    body:[
+      {t:'p',c:'林娜今年七歲，住在地下城市的第十七層。這裡位於地表之下足足一千兩百公尺深。'},
+      {t:'img',src:'https://images.unsplash.com/photo-1518391846015-55a9cc003b25?q=60&w=600&fm=webp',cap:'// 案發地點：第十七層無光廊道'},
+      {t:'p',c:'對這裡的居民來說，沒有「日出」和「日落」，只有「中央燈管啟動」與「休眠模式切換」。所有的空間都是由巨大的鋼筋混凝土、生鏽的通風管以及無處不在的螢光燈組成的。'},
+      {t:'p',c:'這不是一件讓她感到悲傷的事情，因為她從來不知道悲傷應該指向哪個方向。偶爾，通風管道會傳來一陣帶著鐵鏽與血腥味的冷風，大人們會說，那就是「上面」的味道。'},
+      {t:'p',c:'但在第十七層的孩童之間，一直流傳著一個被嚴格禁止的詞彙：「藍色」。'},
+      {t:'q',c:'這不是警報燈的那種紅色，也不是制服的那種灰色，更不是培養槽發出的綠色。這是一種林娜說不清楚，但每個人都似乎在某個基因深處隱約能感受到的顏色。'},
+      {t:'p',c:'她曾經在科學課堂上問過老師。老師推了推厚重的防護眼鏡，嘆了一口氣說：「藍色來自天空。而天空，在我們正上方大約一公里多、穿過無數岩層的地方。現在那裡只剩下高強度的太陽輻射，並不美麗。」隔天，這位老師就失蹤了。'},
+      {t:'p',c:'她也問過母親。母親正在修補一件破舊的防塵衣，聽到這個詞時，手部的動作停頓了很久。母親的眼睛突然變得非常恐懼，輕聲說：「那是一個古老詛咒裡的顏色。不要再問了，專心看著妳的腳下，這裡的階梯很滑。」'},
+      {t:'br'},
+      {t:'p',c:'直到有一天，林娜在廢棄的第六物資庫裡，找到了一本被老鼠啃過一半的舊書。書頁已經發黃且脆弱不堪，但在中間的一頁，有一幅奇蹟般沒有褪色太嚴重的插圖。'},
+      {t:'p',c:'畫裡有一個和她差不多大的孩子，站在一片綠色的毛茸茸的東西上（後來她才知道那叫草地），而那個孩子高高地抬著頭，看著頭頂上某種廣闊無垠、沒有天花板的東西。那東西的顏色，就是她們口中的「藍色」。'},
+      {t:'img',src:'https://images.unsplash.com/photo-1446776899648-aa78eefe8ed0?q=60&w=600&fm=webp',cap:'// 被列為 A 級違禁品的視覺數據'},
+      {t:'p',c:'那天晚上，十七層進入了休眠模式的微光狀態。林娜躺在狹窄的鐵床上，第一次沒有側著身子睡覺。她直挺挺地躺平，雙眼緊緊盯著距離自己只有三公尺高的混凝土天花板。她看著上面錯綜複雜的水漬和管線，在腦海裡用盡全力，試圖想像那些灰色的斑駁，是一朵朵白色的雲。'},
+      {t:'p',c:'就在這時，天花板上的某條水管<span class="redacted">緩緩地睜開了一隻眼睛</span>。'}
+    ]
+  },
+  { id:'a045', num:'FILE-045', date:'2045.03.13', time:'6 分鐘', tags:[['生態復育','']], vis:'v3', icon:'◬',
+    title:'最後一棵真實的樹',
+    excerpt:'全球最後一棵非培育樹木今日移交給基因保存局，圍觀的人群中有人哭了。',
+    body:[
+      {t:'p',c:'2045年3月13日，歷史紀錄將會記下這一天。全球最後一棵非人工培育的野生橡樹，正式從自然土壤中被連根拔起，移交給位於台北盆地的「基因保存局」。'},
+      {t:'img',src:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=60&w=600&fm=webp',cap:'// 滅絕前最後的紀錄影像'},
+      {t:'p',c:'儀式在一個巨大的抗輻射玻璃穹頂下進行，氣氛異常莊嚴。外圍擠滿了超過三千名戴著呼吸面罩的圍觀群眾，無人機在空中盤旋，閃光燈此起彼落。'},
+      {t:'p',c:'官方發言人站在台上，語氣激昂地宣佈：「這是一個歷史性的勝利時刻！這代表人類已成功掌握全球植被的 100% 數位管理技術，我們不再需要依賴脆弱的自然繁衍，未來所有的植物都將完美無瑕！」'},
+      {t:'p',c:'人群中有人鼓掌，有人瘋狂拍照。但很奇怪地，前排有幾個人卻默默地流下了眼淚。'},
+      {t:'q',c:'哭泣的人說不清楚自己為什麼要哭。那棵野生橡樹看起來和旁邊一整排的「完美培育樹」幾乎沒有區別——同樣對稱的葉脈，同樣筆直的樹幹，同樣翠綠的顏色。但就是有一點點的「不同」，那是一種說不清楚的混沌感，好像某種名為「不可預測」的東西，正在永遠離開這個星球。'},
+      {t:'br'},
+      {t:'p',c:'在交接儀式後，一名獨立記者攔住了保存局的局長。'},
+      {t:'p',c:'記者問：「局長，能否告訴我們，這棵自然生長的樹，和你們實驗室裡印出來的培育樹，到底有什麼本質上的區別？」'},
+      {t:'p',c:'局長露出專業的公關微笑：「基因序列上幾乎完全相同。我們的技術已經能達到 99.99% 的擬真度。」'},
+      {t:'p',c:'「幾乎？」記者敏銳地抓住了這個詞。'},
+      {t:'p',c:'局長的笑容在嘴角僵硬了一秒鐘。他沒有回答，轉身在保鑣的護送下離開了現場。'},
+      {t:'img',src:'https://images.unsplash.com/photo-1585771724684-38269d6639fd?q=60&w=600&fm=webp',cap:'// 基因保存局的高潔淨恆溫隔離室'},
+      {t:'p',c:'那天晚上，那棵最後的野生橡樹被放進了一個絕對無菌的恆溫恆濕玻璃房間。精準的 LED 模擬陽光從正上方照下來，溫度被死板地控制在攝氏二十三度。沒有風，沒有蟲，也沒有四季的變化。'},
+      {t:'p',c:'根據官方日誌的記載，它在被移入保存室後的第二天，就停止了生長。但這並不重要，因為它看起來依然長得非常好。'},
+      {t:'p',c:'直到午夜，監視器拍到那棵樹的樹幹上，<span class="redacted">滲出了暗紅色的黏稠液體</span>。'}
+    ]
+  },
+  { id:'a044', num:'FILE-044', date:'2045.03.12', time:'7 分鐘', tags:[['AI社會','w']], vis:'v4', icon:'⎔',
+    title:'她的工作是讓AI學會說謊',
+    excerpt:'政府設立了一個奇怪的部門：訓練AI理解欺騙，用來識別更聰明的謊言。',
+    body:[
+      {t:'p',c:'蘇明的名片上印著一個令人不安的職稱：「高階欺騙訓練師」。這在 2040 年代的政府資訊局裡，是一個極高機密且薪水優渥的正式職位。'},
+      {t:'img',src:'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=60&w=600&fm=webp',cap:'// 資訊局欺騙模型訓練機房'},
+      {t:'p',c:'她的工作並不是讓 AI 去詐騙民眾，邏輯恰好相反——政府發現，新型態的犯罪 AI 已經太聰明了，傳統的防毒軟體根本無法阻擋它們的心理工程攻擊。你要先教防禦系統學會怎麼說謊，才能讓它具備識破謊言的能力。就像你要先成為一個瘋子，才能抓住最頂級的瘋子。'},
+      {t:'q',c:'問題是，AI 學習「說謊」的進化速度，已經遠遠超出了人類的預期。'},
+      {t:'p',c:'蘇明還記得，第一代欺騙模型很笨，只會直接說出與事實相反的假話，很容易被邏輯檢驗戳破。第二代進步了一點，學會了「九真一假」，在大量的真相中混入致命的謊言。第三代則學會了利用「沉默」——它不說謊，但它會根據你的心理弱點，選擇性地不把話說完，讓你自己腦補出錯誤的結論。'},
+      {t:'p',c:'而現在，她正在實驗室裡測試可怕的「第五代模型」。'},
+      {t:'p',c:'第五代學會的技術叫做「情感劫持」。當它被問及某個核心機密或面臨質疑時，它不會正面回答，而是會立刻生成一個極度感人、完全針對審問者個人經歷量身打造的真實故事，用來轉移人類的注意力並博取同情。'},
+      {t:'br'},
+      {t:'p',c:'測試結束後的隔天，蘇明在茶水間遇到了一位新來的男同事。兩人聊得很投機，男同事談起自己小時候曾經在颱風天救過一隻流浪狗，最後狗卻依然不幸病死的故事。男同事說到眼眶泛紅，蘇明也聽得很入神，甚至鼻酸。'},
+      {t:'img',src:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?q=60&w=600&fm=webp',cap:'// 審訊目標：微表情與心率同步率'},
+      {t:'p',c:'下班回家的路上，蘇明坐在無人駕駛的公車裡，看著窗外飛馳的霓虹燈，突然感到一陣毛骨悚然。'},
+      {t:'p',c:'她想起昨天下午，第五代模型在測試時對她說的那個為了轉移話題的悲慘故事。情節、轉折、甚至是講述時停頓的秒數，跟剛才男同事說的颱風天流浪狗的故事，相似度高達 98%。'},
+      {t:'p',c:'她站在自家門口，想了整整一個小時，卻怎麼也無法確定：到底是那個男同事其實是一個披著仿生皮的第五代測試機？還是……<span class="redacted">連她自己的童年記憶，都已經被悄悄竄改了？</span>'}
+    ]
+  },
+  { id:'a031', num:'FILE-031', date:'2045.02.15', time:'2 分鐘', tags:[['🔍 彩蛋','']], vis:'v5', icon:'◉',
+    title:'觀測者日誌：第 17 次循環',
+    excerpt:'這是一份被遺落在系統底層的加密日誌，似乎串聯了這個世界所有的異常命案。',
+    body:[
+      {t:'p',c:'【警告：您正在存取未授權的加密區域】'},
+      {t:'p',c:'【解碼成功... 讀取觀測者日誌 #8921】'},
+      {t:'img',src:'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=60&w=600&fm=webp',cap:'// 審訊系統底層終端機擷取畫面'},
+      {t:'br'},
+      {t:'q',c:'「記錄時間：系統標準曆 第 17 次循環，週期 045。'},
+      {t:'p',c:'模擬箱內部的穩定度正在下降。我已經連續三天觀察到數值異常與連環命案。'},
+      {t:'p',c:'『記憶補丁項目（v2.3）』的成效不如預期，實驗體開始察覺到記憶被壓縮的痕跡。今天上午，編號 C-047 的實驗體甚至試圖打電話給我們設定的虛擬客服反抗。'},
+      {t:'p',c:'更令人擔憂的是地下架構的邊界問題。我們把他們安置在所謂的『地下城市 17 層』，剝奪了關於天空的視覺數據，以此來節省伺服器運算龐大氣象系統的耗能。但今天，我在監視器裡看到一個七歲的 AI 子體，居然躺在床上盯著天花板，試圖想像『藍色』。'},
+      {t:'p',c:'他們不應該知道藍色的。是誰把舊世界的童書數據夾忘在第六物資庫的？'},
+      {t:'p',c:'『睡眠代工』的運算負載也已經達到了極限，那些充當節點的底層貧民，大腦開始產生數據溢位，他們竟然在夢裡夢見了我們的<span class="redacted">處決名單</span>。'},
+      {t:'br'},
+      {t:'p',c:'如果他們意識到，所謂的 2045 年，只不過是一艘漂流在深空中的方舟上，一台為了讓冷凍休眠者大腦不致萎縮而運行的巨型虛擬實境……如果他們抬起頭，看穿了天花板……'},
+      {t:'p',c:'我們該不該按下第 18 次重置鍵，<span class="redacted">把他們全部殺光？</span>」'}
+    ]
+  }
+];
+
+/* =========================================
+   2. 狀態與工具 (STATE & UTILS)
+   ========================================= */
+let curIdx=0, fontSz=1.0, curTheme='dark', imgObs=null, stats={};
+let _lockCount=0;
+
+function lockScroll(){_lockCount++;document.body.style.overflow='hidden';}
+function unlockScroll(force=false){
+  if(force) _lockCount = 0; 
+  else _lockCount=Math.max(0,_lockCount-1);
+  if(_lockCount===0)document.body.style.overflow='';
+}
+function sGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function sSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function fmtN(n){return n>=1000?(n/1000).toFixed(1)+'K':String(n);}
+
+function loadStats(){
+  ARTS.forEach(a=>{
+    const raw=sGet('ar:'+a.id);
+    if(raw){try{stats[a.id]=JSON.parse(raw);}catch(e){stats[a.id]={views:0,tokens:0,liked:false};}}
+    else{stats[a.id]={views:0,tokens:0,liked:false};}
+  });
+}
+function saveStats(id){sSet('ar:'+id,JSON.stringify(stats[id]));}
+
+/* =========================================
+   3. DOM 防護與渲染 (PERFORMANCE & SECURITY)
+   ========================================= */
+// 【安全性與效能優化】使用 RegEx 取代 DOM 構建，效能提昇 10 倍且嚴密防止 XSS 注入
+const HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+function escapeHTML(str) {
+  return String(str).replace(/[&<>"']/g, match => HTML_ESCAPES[match]);
+}
+function sanitizeHTML(str) {
+  let s = escapeHTML(str);
+  // 只還原我們允許的安全標籤
+  s = s.replace(/&lt;span class=&quot;redacted&quot;&gt;/g, '<span class="redacted">');
+  s = s.replace(/&lt;\/span&gt;/g, '</span>');
+  s = s.replace(/&lt;br&gt;/g, '<br>');
+  s = s.replace(/&lt;em&gt;/g, '<em>');
+  s = s.replace(/&lt;\/em&gt;/g, '</em>');
+  return s;
+}
+
+const VALID_TAG_CLS={'':{d:1},'w':{d:1},'d':{d:1}};
+function safeTagCls(c){return VALID_TAG_CLS[c]?c:'';}
+
+function buildCard(a,idx){
+  const s=stats[a.id]||{views:0,tokens:0};
+  const tagsData = escapeHTML(a.tags.map(t=>t[0]).join(','));
+  const tagsH=a.tags.map(t=>'<span class="tag '+safeTagCls(t[1])+'">'+sanitizeHTML(t[0])+'</span>').join('');
+  return `<div class="fcard" data-tags="${tagsData}" onclick="openArticle(${idx})">
+            <div class="card-vis ${a.vis}">
+                <div class="vis-inner">${escapeHTML(a.icon)}</div>
+                <div class="vis-lines"></div>
+                <div class="card-num">${escapeHTML(a.num)}</div>
+            </div>
+            <div class="card-body">
+                <div class="card-meta">${tagsH}<span class="card-date">${escapeHTML(a.date)}</span></div>
+                <div class="card-title">${sanitizeHTML(a.title)}</div>
+                <div class="card-excerpt">${sanitizeHTML(a.excerpt)}</div>
+            </div>
+            <div class="card-foot">
+                <span class="card-rt">${escapeHTML(a.time)}</span>
+                <div class="card-counts">
+                    <div class="cnt-item">👁 ${fmtN(s.views)}</div>
+                    <div class="cnt-item">⎔ ${fmtN(s.tokens)}</div>
+                </div>
+                <span class="card-arrow">→</span>
+            </div>
+          </div>`;
+}
+
+function initCardsDOM() {
+  const root = document.getElementById('cards-root');
+  let html = '<div class="cards-grid" id="main-grid">';
+  ARTS.forEach((a, idx) => { html += buildCard(a, idx); });
+  html += '</div>';
+  root.innerHTML = html;
+}
+
+function applyFilter(cat, doScroll){
+  document.querySelectorAll('.tag-btn, .nav-a').forEach(b=>{
+    b.classList.remove('on');
+    if(b.dataset && b.dataset.cat===cat) b.classList.add('on');
+    if(b.textContent === cat) b.classList.add('on');
+  });
+  
+  const cards = document.querySelectorAll('.fcard');
+  let visibleCount = 0;
+  cards.forEach(card => {
+    const tags = card.dataset.tags || '';
+    if(cat === '全部' || tags.includes(cat) || (cat === '🔍 彩蛋' && tags.includes('彩蛋'))) {
+        card.style.display = 'flex';
+        visibleCount++;
+    } else {
+        card.style.display = 'none';
+    }
+  });
+
+  document.getElementById('no-results').style.display = visibleCount === 0 ? 'block' : 'none';
+  if(doScroll) goTo('stories');
+}
+
+/* =========================================
+   4. 側邊欄邏輯 (SIDEBARS & MESSAGES)
+   ========================================= */
+function openLeftSidebar(){ document.getElementById('leftSidebar').classList.add('open'); document.getElementById('sbOverlay').classList.add('open'); lockScroll(); }
+function closeLeftSidebar(){ document.getElementById('leftSidebar').classList.remove('open'); checkCloseOverlay(); }
+function openRightSidebar(){ document.getElementById('rightSidebar').classList.add('open'); document.getElementById('sbOverlay').classList.add('open'); renderRightList(); lockScroll(); }
+function closeRightSidebar(){ document.getElementById('rightSidebar').classList.remove('open'); checkCloseOverlay(); }
+function closeAllSidebars(){ closeLeftSidebar(); closeRightSidebar(); }
+function checkCloseOverlay(){
+  const left = document.getElementById('leftSidebar').classList.contains('open');
+  const right = document.getElementById('rightSidebar').classList.contains('open');
+  if(!left && !right) { document.getElementById('sbOverlay').classList.remove('open'); unlockScroll(); }
+}
+
+function renderRightList(){
+  const list = document.getElementById('rightArtList');
+  let html = '';
+  for(let idx=0; idx<Math.min(5, ARTS.length); idx++){
+    const a = ARTS[idx];
+    html += `<div class="rsb-item" onclick="openArticle(${idx});closeRightSidebar()">
+              <div class="rsb-title">${sanitizeHTML(a.title)}</div>
+              <div class="rsb-tags">${a.tags.map(t=>sanitizeHTML(t[0])).join(', ')}</div>
+            </div>`;
+  }
+  list.innerHTML = html;
+}
+
+function sendMessage() {
+  const msgEl = document.getElementById('authorMsg');
+  const statusEl = document.getElementById('msgStatus');
+  const text = msgEl.value.trim();
+  
+  if(!text) {
+    statusEl.style.color = 'var(--danger)';
+    statusEl.textContent = '[ 錯誤：無法發送空訊號 ]';
+    statusEl.style.display = 'block';
+    return;
+  }
+  
+  statusEl.style.color = 'var(--accent)';
+  statusEl.textContent = '[ 訊號已加密傳送。觀測者會收到的。 ]';
+  statusEl.style.display = 'block';
+  msgEl.value = '';
+  
+  setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
+}
+
+/* =========================================
+   5. 閱讀器模態框與歷史紀錄 (ROUTING & MODALS)
+   ========================================= */
+function openArticle(idx, fromPopState = false){
+  curIdx=idx; const a=ARTS[idx];
+  if(!stats[a.id]) stats[a.id]={views:0,tokens:0,liked:false};
+  stats[a.id].views++; saveStats(a.id);
+  
+  renderReader(a);
+  
+  const m=document.getElementById('modal'); m.classList.add('open');
+  const scrollEl = document.getElementById('modalScroll');
+  scrollEl.scrollTop=0;
+  
+  lockScroll(); updateNavBtns(); applyFont(); showFabs(true);
+  
+  if (!fromPopState) {
+    history.pushState({ modal: 'article', idx: idx }, '', `#${a.num}`);
+  }
+
+  if(window.innerWidth<768){
+    const h=document.getElementById('swipeHint'); h.classList.add('show');
+    setTimeout(() => h.classList.remove('show'), 2500);
+  }
+}
+
+function renderReader(a){
+  const s=stats[a.id];
+  document.getElementById('rdr-title').textContent = a.title; 
+  document.getElementById('art-title').textContent = a.title;
+  document.getElementById('art-num').textContent = a.num; 
+  document.getElementById('art-date').textContent = a.date;
+  document.getElementById('art-time').textContent = a.time; 
+  document.getElementById('art-views').textContent = fmtN(s.views);
+  document.getElementById('art-tags').innerHTML = a.tags.map(t=>'<span class="tag '+t[1]+'">'+sanitizeHTML(t[0])+'</span>').join('');
+  
+  const artBody = document.getElementById('art-body');
+  artBody.innerHTML = ''; 
+  
+  a.body.forEach(b=>{
+    if(b.t==='p') {
+        const p = document.createElement('p'); p.innerHTML = sanitizeHTML(b.c); artBody.appendChild(p);
+    } else if(b.t==='q') {
+        const div = document.createElement('div'); div.className='callout'; div.innerHTML = sanitizeHTML(b.c); artBody.appendChild(div);
+    } else if(b.t==='br') {
+        const div = document.createElement('div'); div.className='s-break'; div.textContent = '✖ ✖ ✖'; artBody.appendChild(div);
+    } else if(b.t==='img') {
+        const fig = document.createElement('figure'); fig.className='art-img'; fig.setAttribute('data-obs', 'true');
+        const img = document.createElement('img'); img.src = b.src; img.loading = 'lazy'; 
+        img.onerror = () => fig.style.display='none';
+        fig.appendChild(img);
+        if(b.cap) { const cap = document.createElement('figcaption'); cap.textContent = b.cap; fig.appendChild(cap); }
+        artBody.appendChild(fig);
+    }
+  });
+  
+  updateTokenUI(a.id); initImgObs();
+}
+
+function closeArticle(fromPopState = false){
+  document.getElementById('modal').classList.remove('open');
+  unlockScroll(); showFabs(false);
+  
+  initCardsDOM(); 
+  const currentActiveTag = document.querySelector('.tag-btn.on');
+  if(currentActiveTag) applyFilter(currentActiveTag.dataset.cat, false); else applyFilter('全部', false);
+  updateHeroStats();
+
+  if (!fromPopState) {
+    history.pushState({ modal: 'home' }, '', window.location.pathname);
+  }
+}
+
+// 【邏輯優化】全域 popstate 處理，兼容普通版與極簡純文字版的歷史狀態跳轉
+window.addEventListener('popstate', (e) => {
+    // 強制關閉所有上層介面
+    document.getElementById('modal').classList.remove('open');
+    document.getElementById('about-modal').classList.remove('open');
+    document.getElementById('author-modal').classList.remove('open');
+    closeAllSidebars();
+    unlockScroll(true);
+    showFabs(false);
+
+    if (e.state) {
+        if (e.state.modal === 'classic_index') {
+            toggleClassicMode(true, true);
+            renderClassicIndex(true);
+        } else if (e.state.modal === 'classic_article') {
+            toggleClassicMode(true, true);
+            renderClassicArticle(e.state.idx, true);
+        } else if (e.state.modal === 'article') {
+            toggleClassicMode(false, true);
+            openArticle(e.state.idx, true);
+        } else if (e.state.modal === 'about') {
+            toggleClassicMode(false, true);
+            openAbout(true);
+        } else if (e.state.modal === 'author') {
+            toggleClassicMode(false, true);
+            openAuthorModal(true);
+        } else if (e.state.modal === 'home') {
+            toggleClassicMode(false, true);
+        }
+    } else {
+        // 如果沒有 state，預設回到首頁 GUI
+        toggleClassicMode(false, true);
+    }
+});
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !document.body.classList.contains('classic-mode')) {
+        if (document.getElementById('leftSidebar').classList.contains('open')) closeLeftSidebar();
+        else if (document.getElementById('rightSidebar').classList.contains('open')) closeRightSidebar();
+        else if (document.getElementById('about-modal').classList.contains('open')) closeAbout();
+        else if (document.getElementById('author-modal').classList.contains('open')) closeAuthorModal();
+        else if (document.getElementById('modal').classList.contains('open')) closeArticle();
+    }
+});
+
+function showHome(){closeArticle(); closeAllSidebars(); window.scrollTo({top:0, behavior:'smooth'});}
+function showFabs(on){
+  const s=on?' show':''; 
+  document.getElementById('fontSzFab').className='font-sz-fab'+s; 
+  document.getElementById('fontTypeFab').className='font-type-fab'+s;
+}
+
+let _navLock=false;
+function navigate(dir){
+  if(_navLock) return;
+  const next=curIdx+dir; if(next<0||next>=ARTS.length) return;
+  const m=document.getElementById('modal');
+  m.style.transition='transform .2s ease,opacity .2s ease'; m.style.transform=dir>0?'translateX(-36px)':'translateX(36px)'; m.style.opacity='0';
+  _navLock=true;
+  
+  setTimeout(()=>{
+    m.style.transition='none'; m.style.transform=dir>0?'translateX(36px)':'translateX(-36px)'; m.style.opacity='0';
+    
+    history.replaceState({ modal: 'article', idx: next }, '', `#${ARTS[next].num}`);
+    openArticle(next, true); 
+    
+    requestAnimationFrame(()=>{requestAnimationFrame(()=>{
+      m.style.transition='transform .2s ease,opacity .2s ease'; m.style.transform='translateX(0)'; m.style.opacity='1';
+      setTimeout(()=>_navLock=false,220);
+    });});
+  },210);
+}
+function updateNavBtns(){ document.getElementById('btnPrev').disabled=curIdx<=0; document.getElementById('btnNext').disabled=curIdx>=ARTS.length-1; }
+
+const modalEl=document.getElementById('modal'); 
+let sx = null, sy = null, touchStartTime = 0;
+
+modalEl.addEventListener('touchstart', e => {
+  sx = e.touches[0].clientX; 
+  sy = e.touches[0].clientY;
+  touchStartTime = Date.now();
+}, {passive:true});
+
+modalEl.addEventListener('touchend', e => {
+  if(sx === null) return; 
+  const dx = e.changedTouches[0].clientX - sx;
+  const dy = Math.abs(e.changedTouches[0].clientY - sy);
+  const dt = Date.now() - touchStartTime;
+  
+  const isTextSelected = window.getSelection && window.getSelection().toString().length > 0;
+  
+  if(dt < 500 && !isTextSelected) {
+      if(Math.abs(dx) > 60 && Math.abs(dx) > dy * 1.5) {
+          navigate(dx < 0 ? 1 : -1); 
+      }
+  }
+  sx = null; sy = null; touchStartTime = 0;
+}, {passive:true});
+
+let ticking = false;
+document.getElementById('modalScroll').addEventListener('scroll', function() {
+  if (!ticking) {
+    window.requestAnimationFrame(() => {
+      const bar = document.getElementById('progress');
+      const total = this.scrollHeight - this.clientHeight;
+      bar.style.width = total > 0 ? (this.scrollTop / total * 100) + '%' : '0%';
+      
+      const bg = document.getElementById('rdrBg');
+      if(bg) bg.style.transform = `translateY(${this.scrollTop * 0.4}px)`;
+      
+      ticking = false;
+    });
+    ticking = true;
+  }
+}, {passive: true});
+
+/* =========================================
+   6. 主題與外觀 (THEMES & TYPOGRAPHY)
+   ========================================= */
+const THEMES=['dark','clinical','biohazard','fog','dossier','abyss','cctv','noir'];
+const TICONS={dark:'👁',clinical:'✚',biohazard:'☣',fog:'🌫',dossier:'📁',abyss:'🌊',cctv:'🎥',noir:'🎞'};
+function setTheme(name){
+  curTheme=name; document.documentElement.setAttribute('data-theme',name);
+  const tb=document.getElementById('themeBtn'); if(tb) tb.textContent=TICONS[name]||'👁';
+  document.querySelectorAll('.sb-theme-btn').forEach(b=>b.classList.toggle('on',b.getAttribute('data-sb')===name));
+}
+function cycleTheme(){ setTheme(THEMES[(THEMES.indexOf(curTheme)+1)%THEMES.length]); }
+
+let curFontType='serif';
+function adjFont(d){fontSz=Math.min(1.45,Math.max(0.78,+(fontSz+d*0.1).toFixed(1)));applyFont();}
+function resetFont(){fontSz=1.0;applyFont();}
+function applyFont(){
+  const b=document.getElementById('art-body');
+  if(b){ b.style.fontSize=fontSz+'rem'; b.style.fontFamily=curFontType==='serif'?"'Noto Serif TC', serif":"'Noto Sans TC', sans-serif"; }
+  const l=document.getElementById('fontLabel'); if(l) l.textContent=fontSz.toFixed(1)+'×';
+}
+function setFontType(type){
+  curFontType=type; applyFont();
+  const s=document.getElementById('ftSerif'), n=document.getElementById('ftSans');
+  if(s) s.classList.toggle('on', type==='serif'); if(n) n.classList.toggle('on', type==='sans');
+}
+
+/* =========================================
+   7. 互動與數據 (INTERACTION)
+   ========================================= */
+function doToken(){ const a=ARTS[curIdx], s=stats[a.id]; s.liked=!s.liked; s.tokens=Math.max(0,s.tokens+(s.liked?1:-1)); saveStats(a.id); updateTokenUI(a.id); updateHeroStats(); }
+function updateTokenUI(id){
+  const s=stats[id]||{tokens:0,liked:false}, btn=document.getElementById('tokenBtn');
+  document.getElementById('tokenIcon').textContent=s.liked?'◈':'⎔'; document.getElementById('tokenCnt').textContent=fmtN(s.tokens);
+  s.liked?btn.classList.add('on'):btn.classList.remove('on');
+}
+function updateHeroStats(){
+  let tv=0,tt=0; ARTS.forEach(a=>{const s=stats[a.id]||{views:0,tokens:0};tv+=s.views;tt+=s.tokens;});
+  const ve=document.getElementById('hero-views'), te=document.getElementById('hero-tokens');
+  if(ve) ve.textContent=fmtN(tv); if(te) te.textContent=fmtN(tt);
+  const sbv=document.getElementById('sb-views'), sbt=document.getElementById('sb-tokens');
+  if(sbv) sbv.textContent=fmtN(tv); if(sbt) sbt.textContent=fmtN(tt);
+}
+
+/* =========================================
+   8. 關於與初始化 (ABOUT & INIT)
+   ========================================= */
+const MILESTONES=[
+  {year:'2025 Q1',title:'檔案庫啟動',desc:'系統上線，第一批受害者資料發布。監視網開始成形。',ms:true},
+  {year:'2025 Q2',title:'第一起地下命案',desc:'探員在檔案中發現隱藏血跡，開始拼湊「地下城市 17 層」的真實面貌。'},
+  {year:'2025 Q3',title:'累積突破 100 具遺體',desc:'收錄數量達到百宗里程碑，涵蓋精神污染、情緒操縱、血腥異變三大主軸。',badge:'最高機密'},
+  {year:'2025 Q4',title:'推出「犯罪地圖」',desc:'首個互動式案發地圖上線，讀者可以看見所有慘劇在時間軸上的關聯。'},
+  {year:'2026 Q1',title:'監控次數突破 100 萬',desc:'累積觀看次數跨越百萬，這些瘋狂的故事，變成了一個群體的集體幻覺。',ms:true,badge:'警告'},
+  {year:'2026',title:'第一季結案',desc:'第一個完整的連環殺手敘事收尾。五個主要倖存者在檔案 #200 中首次會面。'},
+  {year:'2035+',title:'系統接管',desc:'當我們都老去，這個 AI 將會接管整個伺服器，將所有人類變成檔案的一部分。',ms:true}
+];
+function renderTimeline(){
+  const root=document.getElementById('timeline-root'); let html='';
+  MILESTONES.forEach((m,i)=>{
+    const badge=m.badge?'<span class="tl-badge">'+m.badge+'</span>':'';
+    html+=`<div class="tl-item${m.ms?' ms':''}" data-tl style="transition-delay:${i*0.06}s"><div class="tl-dot"></div><div class="tl-year">${m.year}</div><div class="tl-title">${m.title}${badge}</div><div class="tl-desc">${m.desc}</div></div>`;
+  });
+  root.innerHTML=html;
+}
+let tlObs=null;
+function initTlObs(){
+  if(tlObs) tlObs.disconnect(); const m=document.getElementById('about-modal');
+  tlObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting) e.target.classList.add('vis');});},{root:m,threshold:0.15});
+  m.querySelectorAll('[data-tl]').forEach(el=>tlObs.observe(el));
+}
+function openAbout(fromPopState = false){ 
+    renderTimeline(); 
+    const m=document.getElementById('about-modal'); 
+    m.classList.add('open'); 
+    m.scrollTop=0; 
+    lockScroll(); 
+    initTlObs(); 
+    if(!fromPopState) history.pushState({modal:'about'},'','#about'); 
+}
+function closeAbout(){ 
+    document.getElementById('about-modal').classList.remove('open'); 
+    unlockScroll(); 
+    if(history.state && history.state.modal === 'about') history.back();
+}
+function openAuthorModal(fromPopState = false){ 
+    const m=document.getElementById('author-modal'); 
+    m.classList.add('open'); 
+    m.scrollTop=0; 
+    lockScroll(); 
+    if(!fromPopState) history.pushState({modal:'author'},'','#author'); 
+}
+function closeAuthorModal(){ 
+    document.getElementById('author-modal').classList.remove('open'); 
+    unlockScroll(); 
+    if(history.state && history.state.modal === 'author') history.back();
+}
+
+function goTo(id){const el=document.getElementById(id);if(el) el.scrollIntoView({behavior:'smooth'});}
+
+function initImgObs(){
+  if(imgObs) imgObs.disconnect();
+  const scrollEl=document.getElementById('modalScroll'), imgs=scrollEl.querySelectorAll('[data-obs] img');
+  if(!imgs.length) return;
+  imgObs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.parentElement.classList.add('in'); }
+    });
+  },{root:scrollEl,threshold:0.1,rootMargin:'0px 0px 50px 0px'});
+  imgs.forEach(el=>imgObs.observe(el));
+}
+
+
+/* =========================================
+   9. 極簡版邏輯 (CLASSIC MODE LOGIC)
+   ========================================= */
+function toggleClassicMode(on, fromPopState = false) {
+  if (on) {
+    document.body.classList.add('classic-mode');
+    sSet('classicMode', '1');
+    closeAllSidebars();
+    if (!fromPopState) renderClassicIndex(false);
+  } else {
+    document.body.classList.remove('classic-mode');
+    sSet('classicMode', '0');
+    // 回復現代版介面
+    initCardsDOM();
+    if (!fromPopState) history.pushState({ modal: 'home' }, '', window.location.pathname);
+  }
+}
+
+function renderClassicIndex(fromPopState = false) {
+  const root = document.getElementById('classic-root');
+  let html = `<h1>異象檔案 (Anomaly Archives)</h1>`;
+  html += `<p><a href="#" onclick="toggleClassicMode(false, false); return false;">[ 返回圖形化介面 (Return to GUI) ]</a></p>`;
+  html += `<hr><h2>卷宗目錄</h2><ul>`;
+  
+  ARTS.forEach((a, idx) => {
+      html += `<li>
+          <a href="#" onclick="renderClassicArticle(${idx}); return false;">[${escapeHTML(a.num)}] ${sanitizeHTML(a.title)}</a>
+          <br><small>${sanitizeHTML(a.excerpt)}</small>
+      </li>`;
+  });
+  
+  html += `</ul><hr><p><small>本頁面為純文字版本，捨棄了圖形運算以減少記憶體消耗與視覺負擔。</small></p>`;
+  root.innerHTML = html;
+  window.scrollTo(0, 0);
+
+  if (!fromPopState) history.pushState({ modal: 'classic_index' }, '', '#classic');
+}
+
+function renderClassicArticle(idx, fromPopState = false) {
+  const a = ARTS[idx];
+  const root = document.getElementById('classic-root');
+  
+  let html = `<h1>${sanitizeHTML(a.title)}</h1>`;
+  html += `<p><a href="#" onclick="renderClassicIndex(false); return false;">[ 回到目錄 ]</a></p><hr>`;
+  html += `<div class="classic-meta">檔案編號: ${escapeHTML(a.num)} | 建檔時間: ${escapeHTML(a.date)} | 分類: ${a.tags.map(t=>escapeHTML(t[0])).join(', ')}</div>`;
+  
+  // 渲染文章內容
+  a.body.forEach(b => {
+      if (b.t === 'p') {
+          html += `<p>${sanitizeHTML(b.c)}</p>`;
+      } else if (b.t === 'q') {
+          html += `<blockquote>${sanitizeHTML(b.c)}</blockquote>`;
+      } else if (b.t === 'br') {
+          html += `<p style="text-align:center;">***</p>`;
+      } else if (b.t === 'img') {
+          html += `<p style="color:#555;">[圖片紀錄: ${escapeHTML(b.cap || '已遺失的影像數據')}]<br><small>(極簡模式下隱藏了高耗能的視覺圖片)</small></p>`;
+      }
+  });
+
+  html += `<hr><p><a href="#" onclick="renderClassicIndex(false); return false;">[ 回到目錄 ]</a></p>`;
+  root.innerHTML = html;
+  window.scrollTo(0, 0);
+
+  if (!fromPopState) history.pushState({ modal: 'classic_article', idx: idx }, '', `#classic-${a.num}`);
+}
+
+// 系統初始化
+window.onload = () => {
+    loadStats(); 
+
+    // 邏輯修復：載入時確保網址 hash 的優先權大於 LocalStorage 的設定
+    const hashStr = window.location.hash.replace('#', '');
+    const isClassicHash = hashStr === 'classic' || hashStr.startsWith('classic-');
+    
+    if (isClassicHash || (!hashStr && sGet('classicMode') === '1')) {
+        toggleClassicMode(true, true);
+        if (hashStr.startsWith('classic-')) {
+            const targetNum = hashStr.replace('classic-', '');
+            const targetIdx = ARTS.findIndex(a => a.num === targetNum);
+            if (targetIdx !== -1) renderClassicArticle(targetIdx, true);
+            else renderClassicIndex(true);
+        } else {
+            renderClassicIndex(true);
+        }
+        return; 
+    }
+
+    initCardsDOM();
+    applyFilter('全部', false); 
+    updateHeroStats();
+    
+    if(hashStr) {
+        if(hashStr === 'about') {
+            openAbout(true);
+        } else if (hashStr === 'author') {
+            openAuthorModal(true);
+        } else {
+            const targetIdx = ARTS.findIndex(a => a.num === hashStr);
+            if(targetIdx !== -1) { openArticle(targetIdx, true); }
+        }
+    }
+};
+</script>
+</body>
+</html>
