@@ -330,7 +330,7 @@ body.classic-mode .redacted,body.classic-mode em{font-weight:bold !important;fon
   </div>
   <div class="modal-scroll" id="modalScroll">
     <div class="rdr-bg-wrap"><div class="rdr-bg" id="rdrBg"></div></div>
-    <div class="art-wrap">
+    <div class="art-wrap" id="artWrap">
       <div class="art-tags" id="art-tags"></div>
       <h1 id="art-title">—</h1>
       <div class="art-byline">
@@ -704,7 +704,8 @@ const THEMES=['dark','clinical','biohazard','fog','dossier','abyss','cctv','noir
 const TICONS={dark:'👁',clinical:'✚',biohazard:'☣',fog:'🌫',dossier:'📁',abyss:'🌊',cctv:'🎥',noir:'🎞'};
 function setTheme(name){
   curTheme=name;document.documentElement.setAttribute('data-theme',name);
-  const tb=document.getElementById('themeBtn');if(tb)tb.textContent=TICONS[name]||'👁';
+  const tb=document.getElementById('themeBtn');
+  if(tb && tb.firstChild) tb.firstChild.nodeValue=TICONS[name]||'👁';
   document.querySelectorAll('.sb-theme-btn').forEach(b=>b.classList.toggle('on',b.getAttribute('data-sb')===name));
 }
 function cycleTheme(){setTheme(THEMES[(THEMES.indexOf(curTheme)+1)%THEMES.length]);}
@@ -712,12 +713,12 @@ function cycleTheme(){setTheme(THEMES[(THEMES.indexOf(curTheme)+1)%THEMES.length
 let _wideMode=false;
 function toggleWidth(){
   _wideMode=!_wideMode;
-  const wrap=document.querySelector('.art-wrap');
+  const wrap=document.getElementById('artWrap');
   if(wrap) wrap.classList.toggle('wide',_wideMode);
   const lbl=document.getElementById('widthLbl');
   if(lbl) lbl.textContent=_wideMode?'滿版':'窄版';
   const btn=document.getElementById('widthBtn');
-  if(btn){ btn.firstChild.textContent=_wideMode?'⊞':'⊡'; btn.classList.toggle('on',_wideMode); }
+  if(btn){ btn.firstChild.nodeValue=_wideMode?'⊞':'⊡'; btn.classList.toggle('on',_wideMode); }
 }
 
 let curFontType='serif';
