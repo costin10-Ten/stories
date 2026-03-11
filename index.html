@@ -15,7 +15,8 @@
 [data-theme="abyss"]{--bg:#030b14;--bg2:#05111f;--surface:#08182b;--border:#112f4d;--accent:#00b4d8;--accent2:#0077b6;--accent-dim:rgba(0,180,216,0.1);--text:#bce4ec;--text-dim:#6d939e;--text-muted:#3b5c66;--danger:#e63946;--warm:#f4a261;--header-bg:rgba(3,11,20,0.98);}
 [data-theme="cctv"]{--bg:#020a04;--bg2:#041408;--surface:#061c0c;--border:#10401b;--accent:#00ff41;--accent2:#00b32d;--accent-dim:rgba(0,255,65,0.1);--text:#ccffcc;--text-dim:#66b366;--text-muted:#2d662d;--danger:#ff1a1a;--warm:#ffcc00;--header-bg:rgba(2,10,4,0.98);}
 [data-theme="noir"]{--bg:#000000;--bg2:#111111;--surface:#1a1a1a;--border:#333333;--accent:#ffea00;--accent2:#cca700;--accent-dim:rgba(255,234,0,0.15);--text:#ffffff;--text-dim:#999999;--text-muted:#555555;--danger:#ffffff;--warm:#ffea00;--header-bg:rgba(0,0,0,0.98);}
-*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 body{background:var(--bg);color:var(--text);font-family:'Noto Serif TC',serif;font-weight:400;overflow-x:hidden;line-height:1.75;transition:background .2s,color .2s;letter-spacing:0.02em;}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;opacity:.4;background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);}
 [data-theme="clinical"] body::before,[data-theme="dossier"] body::before,[data-theme="biohazard"] body::before{opacity:.2;background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);}
@@ -138,10 +139,12 @@ footer{border-top:1px solid var(--border);padding:40px 24px;text-align:center;ba
 .btn-back{display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--text);background:none;border:1px solid var(--border);cursor:pointer;padding:6px 12px;transition:all .2s;white-space:nowrap;text-transform:uppercase;}
 .btn-back:hover{background:var(--text);color:var(--bg);}
 .rdr-ttl{font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--text-muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;letter-spacing:0.1em;}
-.ctrl-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:none;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.9rem;transition:color .2s}
+.ctrl-btn{display:flex;align-items:center;justify-content:center;gap:4px;width:auto;min-width:36px;height:36px;padding:0 10px;background:none;border:1px solid var(--border);color:var(--text-dim);cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:.9rem;transition:color .2s}
 .ctrl-btn:hover{border-color:var(--text);color:var(--text);}
-.modal-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1;scroll-behavior:smooth;}
-.art-wrap{max-width:720px;margin:0 auto;padding:50px 24px 100px;position:relative;background:var(--bg);box-shadow:0 0 40px rgba(0,0,0,0.5);min-height:100%;}
+.ctrl-btn .ctrl-lbl{font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;display:none;}
+@media(min-width:480px){.ctrl-btn .ctrl-lbl{display:inline;}}
+.modal-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1;scroll-behavior:smooth;touch-action:pan-y;}
+.art-wrap{max-width:720px;margin:0 auto;padding:50px 24px 100px;position:relative;background:var(--bg);box-shadow:0 0 40px rgba(0,0,0,0.5);min-height:100%;touch-action:manipulation;}
 .art-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
 .art-wrap h1{font-family:'Noto Serif TC',serif;font-size:clamp(1.8rem,6vw,2.8rem);font-weight:900;line-height:1.25;color:var(--text);margin-bottom:24px;letter-spacing:0.02em;}
 .art-byline{display:flex;gap:16px;align-items:center;flex-wrap:wrap;border-top:2px solid var(--text);border-bottom:1px solid var(--border);margin-bottom:40px;background:var(--surface);padding:12px 16px;}
@@ -322,7 +325,7 @@ body.classic-mode .redacted,body.classic-mode em{font-weight:bold !important;fon
   <div class="rdr-hd">
     <button class="btn-back" onclick="closeArticle(false)">[ 封存檔案 ]</button>
     <div class="rdr-ttl" id="rdr-title">—</div>
-    <button class="ctrl-btn" id="themeBtn" onclick="cycleTheme()">👁</button>
+    <button class="ctrl-btn" id="themeBtn" onclick="cycleTheme()" title="點擊切換色彩配置">👁<span class="ctrl-lbl">濾鏡</span></button>
   </div>
   <div class="modal-scroll" id="modalScroll">
     <div class="rdr-bg-wrap"><div class="rdr-bg" id="rdrBg"></div></div>
@@ -707,7 +710,13 @@ function adjFont(d){fontSz=Math.min(1.45,Math.max(0.78,+(fontSz+d*.1).toFixed(1)
 function resetFont(){fontSz=1.0;applyFont();}
 function applyFont(){
   const b=document.getElementById('art-body');
-  if(b){b.style.fontSize=fontSz+'rem';b.style.fontFamily=curFontType==='serif'?"'Noto Serif TC',serif":"'Noto Sans TC',sans-serif";}
+  if(b){
+    b.style.fontSize=fontSz+'rem';
+    b.style.fontFamily=curFontType==='serif'?"'Noto Serif TC',serif":"'Noto Sans TC',sans-serif";
+    // 放大時縮減行距（最多縮 10%）
+    const lh=(2.1*(1-0.1*Math.max(0,fontSz-1.0)/0.45)).toFixed(2);
+    b.style.lineHeight=lh;
+  }
   const l=document.getElementById('fontLabel');if(l)l.textContent=fontSz.toFixed(1)+'×';
 }
 function setFontType(type){
@@ -807,6 +816,10 @@ function renderClassicArticle(idx,fromPopState=false){
 
 window.onload=()=>{
   loadStats();
+  // iOS 轉向後重套字體，避免系統自動縮放殘留
+  window.addEventListener('orientationchange',()=>{
+    setTimeout(()=>{ if(document.getElementById('modal').classList.contains('open')) applyFont(); },300);
+  });
   const hashStr=window.location.hash.replace('#','');
   const isClassicHash=hashStr==='classic'||hashStr.startsWith('classic-');
   if(isClassicHash||(!hashStr&&sGet('classicMode')==='1')){
