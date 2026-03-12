@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>異象檔案 — 心理驚悚與推理短篇</title>
+<title>弦音異象 — 心理驚悚與推理短篇</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -245,7 +245,7 @@ body.classic-mode .redacted,body.classic-mode em{font-weight:bold !important;fon
       <line x1="14" y1="25.5" x2="7.5" y2="21.5"/>
     </svg>
   </button>
-  <button class="logo-text-btn" onclick="showHome()">異象<em>檔案</em></button>
+  <button class="logo-text-btn" onclick="showHome()">弦音em>異象</em></button>
   <nav class="top-nav">
     <a class="nav-a" data-cat="記憶科技" onclick="applyFilter('記憶科技',true)">精神汙染</a>
     <a class="nav-a" data-cat="地下城市" onclick="applyFilter('地下城市',true)">深淵建築</a>
@@ -260,13 +260,13 @@ body.classic-mode .redacted,body.classic-mode em{font-weight:bold !important;fon
   <div class="sb-head"><span class="sb-logo-text">檔案庫<em>導覽</em></span><button class="sb-close" onclick="closeLeftSidebar()">[X]</button></div>
   <div class="sb-body">
     <div class="sb-section">主目錄</div>
-    <button class="sb-link" onclick="goTo('stories');closeLeftSidebar()">> 最新解密卷宗</button>
+    <button class="sb-link" onclick="goTo('stories');closeLeftSidebar()">> 最新文章</button>
     <button class="sb-link" onclick="goTo('world');closeLeftSidebar()">> 犯罪類別篩選</button>
-    <button class="sb-link" onclick="openAbout();closeLeftSidebar()">> 關於本機構</button>
-    <button class="sb-link" onclick="openAuthorModal();closeLeftSidebar()">> <span class="redacted">[觀測員日誌]</span></button>
-    <div class="sb-section" style="margin-top:32px">系統數據監控</div>
-    <div class="sb-stat-box"><span class="sb-stat-lbl">未授權存取次數</span><span class="sb-stat-val" id="sb-views">0</span></div>
-    <div class="sb-stat-box"><span class="sb-stat-lbl">沒收違禁金幣</span><span class="sb-stat-val" id="sb-tokens">0</span></div>
+    <button class="sb-link" onclick="openAbout();closeLeftSidebar()">> 關於作者</button>
+    <button class="sb-link" onclick="openAuthorModal();closeLeftSidebar()">> <span class="redacted">[作者日誌]</span></button>
+    <div class="sb-section" style="margin-top:32px">系統數據</div>
+    <div class="sb-stat-box"><span class="sb-stat-lbl">瀏覽總量</span><span class="sb-stat-val" id="sb-views">0</span></div>
+    <div class="sb-stat-box"><span class="sb-stat-lbl">沒收金幣</span><span class="sb-stat-val" id="sb-tokens">0</span></div>
     <button class="sb-link" onclick="toggleClassicMode(true,false)" style="margin-top:8px;">> [ 切換至純文字極簡版 ]</button>
     <div class="sb-section" style="margin-top:32px">視覺覆寫濾鏡</div>
     <div class="sb-theme-grid">
@@ -285,14 +285,14 @@ body.classic-mode .redacted,body.classic-mode em{font-weight:bold !important;fon
   <div class="sb-drag" onclick="closeRightSidebar()"></div>
   <div class="sb-head"><span class="sb-logo-text">通訊<em>頻道</em></span><button class="sb-close" onclick="closeRightSidebar()">[X]</button></div>
   <div class="sb-body">
-    <div class="sb-section">系統連線：觀測者通訊頻道</div>
+    <div class="sb-section">作者通訊頻道</div>
     <div class="msg-box">
-      <p style="font-size:0.75rem;color:var(--text-dim);margin-bottom:12px;">// 如果你發現了系統漏洞，或者想對站長說些什麼，請在這裡留言。訊號可能會被攔截，但我會看到的。</p>
+      <p style="font-size:0.75rem;color:var(--text-dim);margin-bottom:12px;">// 如果你發現了系統漏洞，或者想對作者說些什麼，請在這裡留言。訊號可能會被攔截，但我會看到的。</p>
       <textarea id="authorMsg" class="msg-textarea" rows="4" placeholder="請輸入加密訊息..."></textarea>
       <button class="msg-btn" onclick="sendMessage()">[ 發送訊號 ]</button>
       <div id="msgStatus" class="msg-status"></div>
     </div>
-    <div class="sb-section" style="margin-top:20px">近期攔截檔案</div>
+    <div class="sb-section" style="margin-top:20px">近期攔截訊息</div>
     <div class="rsb-list" id="rightArtList"></div>
   </div>
 </div>
@@ -300,11 +300,11 @@ body.classic-mode .redacted,body.classic-mode em{font-weight:bold !important;fon
   <div class="hero-bg"></div><div class="hero-grid"></div>
   <div class="hero-content">
     <div class="hero-tag">CONFIDENTIAL · CASE FILE 2045</div>
-    <h1 class="hero-title">每個通勤的早晨<br><span class="line2">直視深淵的邊緣</span><span class="line3">心理驚悚 · 異常檔案 · 拒絕解密</span></h1>
-    <p class="hero-desc">五分鐘，一個血淋淋的故事，一塊拼湊瘋狂的碎片。<br>當你滑到網頁最底端時——你將發現真正的怪物，<span class="redacted">就站在你身後</span>。</p>
+    <h1 class="hero-title">每個通勤的早晨<br><span class="line2">直視深淵的邊緣</span><span class="line3">心理驚悚 · 推理短篇 · 車廂文學</span></h1>
+    <p class="hero-desc">五分鐘，一個細思極恐的故事，一塊拼湊瘋狂的碎片。<br>當你滑到網頁最底端時——你將發現真正的怪物，<span class="redacted">就站在你身後</span>。</p>
     <div class="hero-actions">
       <button class="btn-primary" onclick="openArticle(0)">[ 解鎖第一份卷宗 ]</button>
-      <button class="btn-ghost" onclick="openRightSidebar()">[ 聯繫觀測者 ]</button>
+      <button class="btn-ghost" onclick="openRightSidebar()">[ 聯繫作者 ]</button>
     </div>
   </div>
   <div class="hero-stats">
@@ -336,12 +336,12 @@ body.classic-mode .redacted,body.classic-mode em{font-weight:bold !important;fon
   </section>
 </main>
 <footer>
-  <div class="ft-logo">異象<em>檔案</em></div>
+  <div class="ft-logo">弦音<em>異象</em></div>
   <div class="ft-txt">ANOMALY ARCHIVES · CLASSFIED<br>一切皆為虛構，除非你相信。<br><br><a href="#" onclick="toggleClassicMode(true,false);return false;" style="color:var(--text-muted);">切換至純文字極簡版 (Classic Mode)</a></div>
 </footer>
 <div id="modal">
   <div class="rdr-hd">
-    <button class="btn-back" onclick="closeArticle(false)">[ 封存檔案 ]</button>
+    <button class="btn-back" onclick="closeArticle(false)">[ 返回大廳 ]</button>
     <div class="rdr-ttl" id="rdr-title">—</div>
     <button class="ctrl-btn" id="themeBtn" onclick="cycleTheme()" title="點擊切換色彩配置">👁<span class="ctrl-lbl">濾鏡</span></button>
     <button class="ctrl-btn" id="widthBtn" onclick="toggleWidth()" title="切換滿版 / 窄版">⊡<span class="ctrl-lbl" id="widthLbl">窄版</span></button>
@@ -381,27 +381,33 @@ body.classic-mode .redacted,body.classic-mode em{font-weight:bold !important;fon
   </div>
 </div>
 <div id="about-modal" class="modal-bg">
-  <div class="about-hd"><button class="btn-back" onclick="closeAbout()">[ 離開 ]</button><div class="rdr-ttl">機構設定</div></div>
+  <div class="about-hd"><button class="btn-back" onclick="closeAbout()">[ 離開 ]</button><div class="rdr-ttl">世界設定</div></div>
   <div class="about-content">
     <div class="about-intro">
       <h2>深淵的凝視，<br><em class="hl">從未停止</em></h2>
-      <p>「異象檔案」是一個未經政府授權的地下觀測站。我們收集了 2045 年周遭發生的所有異常、血腥、與科技失控相關的短篇紀錄。</p>
-      <p>請記住：你在這裡看到的所有文字，都可能帶有<span class="redacted">神經暗示與精神污染</span>。當你自以為在閱讀別人的悲劇時，系統也正在反向解析你的心理弱點。</p>
+      <p>「弦音異象」收集了現代/近未來人心的各種異象。觀測 2040 年生活周遭發生的所有相變、深邃、與科技反噬相關的短篇紀錄。</p>
+      <p>請記住：你在這裡看到的所有文字，都可能帶有<span class="redacted">不寒而慄的既視感</span>。當你自以為在閱讀別人的悲劇時，弦音也正在反向解析你的心理弱點。</p>
     </div>
-    <div class="tl-head">機構發展史</div><div class="timeline" id="timeline-root"></div>
+    <div class="tl-head">弦音發展史</div><div class="timeline" id="timeline-root"></div>
   </div>
 </div>
 <div id="author-modal" class="modal-bg">
-  <div class="about-hd"><button class="btn-back" onclick="closeAuthorModal()">[ 離開 ]</button><div class="rdr-ttl">觀測員日誌</div></div>
+  <div class="about-hd"><button class="btn-back" onclick="closeAuthorModal()">[ 離開 ]</button><div class="rdr-ttl">作者日誌</div></div>
   <div class="about-content">
     <div class="about-intro">
-      <h2>代碼背後的<br><em class="hl">瘋狂囈語</em></h2>
-      <p>這裡記錄了站長在建立這個驚悚世界觀時，逐漸崩潰的心智演變。</p><br><br>
-      <p class="hl" style="font-size:0.8rem;">[ LOG: 2026.03.01 ]</p>
-      <p>我將網站全面改寫成心理驚悚風格。那些原本溫馨的科幻故事，現在看起來像是一樁樁未偵破的命案卷宗。有人剛才在留言板問我：<span class="redacted">「你確定你不是代碼的一部分嗎？」</span></p>
+      <h2>開門與閉門間的<br><em class="hl">心靈風暴</em></h2>
+      <p>這裡記錄了作者在建立這個驚悚世界觀時，逐漸崩潰的心智演變。</p><br><br>
+      <p class="hl" style="font-size:0.8rem;">[ LOG: 2026.03.10 ]</p>
+      <p>網站第一次成功掛上網路，我現在有點搞不清楚自己是小說作者還是程式設計師，都是文字的奴隸不是嗎？：<span class="redacted"></span></p>
       <br>
       <p class="hl" style="font-size:0.8rem;">[ LOG: 2026.02.15 ]</p>
-      <p>加入了「睡眠代工廠」的紀錄。連續寫作了十個小時，我開始懷疑，當我睡著的時候，我的大腦是不是也被某個科技巨頭拿去運算他們的稅務報表了。頭好痛。</p>
+      <p>寫了五十篇短篇，丟掉四十九篇，剩下的那一篇只是因為它剛好沒有標題。</p>
+      <p class="hl" style="font-size:0.8rem;">[ LOG: 2025.09.22 ]</p>
+      <p>編撰關於世界的聖經，一度不知道：<span class="redacted">是我在編輯它，還是它在編輯我</span>。</p>
+      <br>
+      <p class="hl" style="font-size:0.8rem;">[ LOG: 2025.07.22 ]</p>
+      <p>本網站成立：<span class="redacted">於作者腦中。</span></p>
+      <br>
     </div>
   </div>
 </div>
@@ -889,7 +895,7 @@ function renderClassicIndex(fromPopState=false){
   const root=document.getElementById('classic-root');
   root.innerHTML='';
 
-  const h1=document.createElement('h1');h1.textContent='異象檔案 (Anomaly Archives)';
+  const h1=document.createElement('h1');h1.textContent='弦音異象 (Harmonic Gazing)';
   const backP=document.createElement('p');
   const backA=document.createElement('a');backA.href='#';backA.textContent='[ 返回圖形化介面 ]';
   backA.onclick=e=>{e.preventDefault();toggleClassicMode(false,false);};
