@@ -41,6 +41,10 @@ nav.top-nav::-webkit-scrollbar{display:none}
 .sidebar.left.open{transform:translateX(0)}.sidebar.right{right:0;border-left:1px solid var(--accent);transform:translateX(100%);}
 .sidebar.right.open{transform:translateX(0)}
 .sb-head{height:56px;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--border);gap:10px;flex-shrink:0;justify-content:space-between;background:var(--surface);}
+.sb-drag{display:flex;align-items:center;justify-content:center;height:28px;flex-shrink:0;cursor:pointer;opacity:0.4;}
+.sb-drag::before{content:'';display:block;width:36px;height:4px;border-radius:2px;background:var(--text-dim);}
+.sidebar.left .sb-drag{border-right:none;}
+.sidebar.right .sb-drag{border-left:none;}
 .sb-logo-text{font-family:'Share Tech Mono',monospace;font-size:1rem;font-weight:700;color:var(--text);letter-spacing:0.1em;}
 .sb-logo-text em{color:var(--accent);font-style:normal}
 .sb-close{background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;padding:4px 8px;font-family:monospace;}
@@ -225,8 +229,20 @@ body.classic-mode .redacted,body.classic-mode em{font-weight:bold !important;fon
 <div id="progress"></div>
 <header>
   <button class="logo-icon" onclick="openLeftSidebar()" aria-label="檔案庫導覽">
-    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 8H24M4 14H24M4 20H16" stroke="var(--text)" stroke-width="2" stroke-linecap="square"/>
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="var(--text)" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round">
+      <polygon points="14,2.5 20,6.5 20,13.5 14,17.5 8,13.5 8,6.5" fill="none"/>
+      <polygon points="14,10.5 17.5,12.5 17.5,17 14,19 10.5,17 10.5,12.5" fill="none"/>
+      <line x1="14" y1="2.5" x2="14" y2="10.5"/>
+      <line x1="20" y1="6.5" x2="17.5" y2="12.5"/>
+      <line x1="20" y1="13.5" x2="17.5" y2="17"/>
+      <line x1="14" y1="17.5" x2="14" y2="19"/>
+      <line x1="8" y1="13.5" x2="10.5" y2="17"/>
+      <line x1="8" y1="6.5" x2="10.5" y2="12.5"/>
+      <line x1="14" y1="19" x2="14" y2="25.5"/>
+      <line x1="17.5" y1="17" x2="20.5" y2="21.5"/>
+      <line x1="10.5" y1="17" x2="7.5" y2="21.5"/>
+      <line x1="14" y1="25.5" x2="20.5" y2="21.5"/>
+      <line x1="14" y1="25.5" x2="7.5" y2="21.5"/>
     </svg>
   </button>
   <button class="logo-text-btn" onclick="showHome()">異象<em>檔案</em></button>
@@ -240,6 +256,7 @@ body.classic-mode .redacted,body.classic-mode em{font-weight:bold !important;fon
 </header>
 <div class="sidebar-overlay" id="sbOverlay" onclick="closeAllSidebars()"></div>
 <div class="sidebar left" id="leftSidebar">
+  <div class="sb-drag" onclick="closeLeftSidebar()"></div>
   <div class="sb-head"><span class="sb-logo-text">檔案庫<em>導覽</em></span><button class="sb-close" onclick="closeLeftSidebar()">[X]</button></div>
   <div class="sb-body">
     <div class="sb-section">主目錄</div>
@@ -265,6 +282,7 @@ body.classic-mode .redacted,body.classic-mode em{font-weight:bold !important;fon
   </div>
 </div>
 <div class="sidebar right" id="rightSidebar">
+  <div class="sb-drag" onclick="closeRightSidebar()"></div>
   <div class="sb-head"><span class="sb-logo-text">通訊<em>頻道</em></span><button class="sb-close" onclick="closeRightSidebar()">[X]</button></div>
   <div class="sb-body">
     <div class="sb-section">系統連線：觀測者通訊頻道</div>
@@ -502,9 +520,6 @@ const HTML_ESCAPES={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
 function escapeHTML(str){return String(str).replace(/[&<>"']/g,m=>HTML_ESCAPES[m]);}
 
 // 允許清單：只還原白名單標籤，避免反轉義邏輯破口
-const ALLOWED_TAGS=[
-  [/==(.+?)==/g,'<span class="redacted">$1</span>'],
-];
 function sanitizeHTML(str){
   // 先全部跳脫，再還原白名單標記語法
   let s=escapeHTML(str);
@@ -512,26 +527,61 @@ function sanitizeHTML(str){
   s=s.replace(/&lt;span class=&quot;redacted&quot;&gt;([\s\S]*?)&lt;\/span&gt;/g,'<span class="redacted">$1</span>');
   return s;
 }
-const VALID_TAG_CLS={'':{d:1},'w':{d:1},'d':{d:1}};
-function safeTagCls(c){return VALID_TAG_CLS[c]?c:'';}
+const VALID_TAG_CLS=new Set(['','w','d']);
+function safeTagCls(c){return VALID_TAG_CLS.has(c)?c:'';}
+const VALID_VIS=new Set(['v1','v2','v3','v4','v5']);
+function safeVis(v){return VALID_VIS.has(v)?v:'v1';}
 
-function buildCard(a,idx){
+function buildCardEl(a,idx){
   const s=stats[a.id]||{views:0,tokens:0};
-  const td=escapeHTML(a.tags.map(t=>t[0]).join(','));
-  const th=a.tags.map(t=>'<span class="tag '+safeTagCls(t[1])+'">'+sanitizeHTML(t[0])+'</span>').join('');
-  return '<div class="fcard" data-tags="'+td+'" onclick="openArticle('+idx+')">'
-    +'<div class="card-vis '+a.vis+'"><div class="vis-inner">'+escapeHTML(a.icon)+'</div><div class="vis-lines"></div><div class="card-num">'+escapeHTML(a.num)+'</div></div>'
-    +'<div class="card-body"><div class="card-meta">'+th+'<span class="card-date">'+escapeHTML(a.date)+'</span></div>'
-    +'<div class="card-title">'+sanitizeHTML(a.title)+'</div><div class="card-excerpt">'+sanitizeHTML(a.excerpt)+'</div></div>'
-    +'<div class="card-foot"><span class="card-rt">'+escapeHTML(a.time)+'</span>'
-    +'<div class="card-counts"><div class="cnt-item">👁 '+fmtN(s.views)+'</div><div class="cnt-item">⎔ '+fmtN(s.tokens)+'</div></div>'
-    +'<span class="card-arrow">→</span></div></div>';
+
+  const card=document.createElement('div');
+  card.className='fcard';
+  card.dataset.tags=a.tags.map(t=>t[0]).join(',');
+  card.dataset.idx=idx;
+
+  // visual header
+  const vis=document.createElement('div');
+  vis.className='card-vis '+safeVis(a.vis);
+  const inner=document.createElement('div');inner.className='vis-inner';inner.textContent=a.icon;
+  const lines=document.createElement('div');lines.className='vis-lines';
+  const num=document.createElement('div');num.className='card-num';num.textContent=a.num;
+  vis.append(inner,lines,num);
+
+  // body
+  const body=document.createElement('div');body.className='card-body';
+  const meta=document.createElement('div');meta.className='card-meta';
+  a.tags.forEach(t=>{const sp=document.createElement('span');sp.className='tag '+safeTagCls(t[1]);sp.textContent=t[0];meta.appendChild(sp);});
+  const dateEl=document.createElement('span');dateEl.className='card-date';dateEl.textContent=a.date;
+  meta.appendChild(dateEl);
+  const title=document.createElement('div');title.className='card-title';title.textContent=a.title;
+  const excerpt=document.createElement('div');excerpt.className='card-excerpt';excerpt.textContent=a.excerpt;
+  body.append(meta,title,excerpt);
+
+  // footer
+  const foot=document.createElement('div');foot.className='card-foot';
+  const rt=document.createElement('span');rt.className='card-rt';rt.textContent=a.time;
+  const counts=document.createElement('div');counts.className='card-counts';
+  const cv=document.createElement('div');cv.className='cnt-item';cv.textContent='👁 '+fmtN(s.views);
+  const ct=document.createElement('div');ct.className='cnt-item';ct.textContent='⎔ '+fmtN(s.tokens);
+  const arrow=document.createElement('span');arrow.className='card-arrow';arrow.textContent='→';
+  counts.append(cv,ct);foot.append(rt,counts,arrow);
+
+  card.append(vis,body,foot);
+  return card;
 }
+
 function initCardsDOM(){
   const root=document.getElementById('cards-root');
-  let html='<div class="cards-grid" id="main-grid">';
-  ARTS.forEach((a,i)=>{html+=buildCard(a,i);});
-  root.innerHTML=html+'</div>';
+  const grid=document.createElement('div');grid.className='cards-grid';grid.id='main-grid';
+  // 事件委派：在 grid 層級統一監聽，不在每張卡片上綁 onclick
+  grid.addEventListener('click',e=>{
+    const card=e.target.closest('.fcard');
+    if(card) openArticle(Number(card.dataset.idx));
+  });
+  ARTS.forEach((a,i)=>grid.appendChild(buildCardEl(a,i)));
+  root.innerHTML='';
+  root.appendChild(grid);
 }
 
 /* ✅ 修正 2a：只更新計數，不重建 DOM */
@@ -550,8 +600,8 @@ function applyFilter(cat,doScroll){
   document.querySelectorAll('.tag-btn,.nav-a').forEach(b=>b.classList.toggle('on',b.dataset.cat===cat));
   let n=0;
   document.querySelectorAll('.fcard').forEach(card=>{
-    const tags=card.dataset.tags||'';
-    const show=cat==='全部'||tags.includes(cat)||(cat==='🔍 彩蛋'&&tags.includes('彩蛋'));
+    const tags=(card.dataset.tags||'').split(',');
+    const show=cat==='全部'||tags.includes(cat);
     card.style.display=show?'flex':'none';
     if(show)n++;
   });
@@ -559,9 +609,17 @@ function applyFilter(cat,doScroll){
   if(doScroll)goTo('stories');
 }
 
-function openLeftSidebar(){document.getElementById('leftSidebar').classList.add('open');document.getElementById('sbOverlay').classList.add('open');lockScroll();}
+function openLeftSidebar(){
+  const alreadyLocked=document.getElementById('sbOverlay').classList.contains('open');
+  document.getElementById('leftSidebar').classList.add('open');document.getElementById('sbOverlay').classList.add('open');
+  if(!alreadyLocked)lockScroll();
+}
 function closeLeftSidebar(){document.getElementById('leftSidebar').classList.remove('open');checkCloseOverlay();}
-function openRightSidebar(){document.getElementById('rightSidebar').classList.add('open');document.getElementById('sbOverlay').classList.add('open');renderRightList();lockScroll();}
+function openRightSidebar(){
+  const alreadyLocked=document.getElementById('sbOverlay').classList.contains('open');
+  document.getElementById('rightSidebar').classList.add('open');document.getElementById('sbOverlay').classList.add('open');renderRightList();
+  if(!alreadyLocked)lockScroll();
+}
 function closeRightSidebar(){document.getElementById('rightSidebar').classList.remove('open');checkCloseOverlay();}
 function closeAllSidebars(){closeLeftSidebar();closeRightSidebar();}
 function checkCloseOverlay(){
@@ -570,14 +628,20 @@ function checkCloseOverlay(){
   if(!l&&!r){document.getElementById('sbOverlay').classList.remove('open');unlockScroll();}
 }
 function renderRightList(){
-  const list=document.getElementById('rightArtList');let html='';
-  for(let i=0;i<Math.min(5,ARTS.length);i++){
+  const list=document.getElementById('rightArtList');
+  list.innerHTML='';
+  const count=Math.min(5,ARTS.length);
+  for(let i=0;i<count;i++){
     const a=ARTS[i];
-    html+='<div class="rsb-item" onclick="openArticle('+i+');closeRightSidebar()">'
-      +'<div class="rsb-title">'+sanitizeHTML(a.title)+'</div>'
-      +'<div class="rsb-tags">'+a.tags.map(t=>sanitizeHTML(t[0])).join(', ')+'</div></div>';
+    const item=document.createElement('div');item.className='rsb-item';
+    item.onclick=()=>{openArticle(i);closeRightSidebar();};
+
+    const t=document.createElement('div');t.className='rsb-title';t.textContent=a.title;
+    const tags=document.createElement('div');tags.className='rsb-tags';
+    tags.textContent=a.tags.map(t=>t[0]).join(', ');
+
+    item.append(t,tags);list.appendChild(item);
   }
-  list.innerHTML=html;
 }
 function sendMessage(){
   const msgEl=document.getElementById('authorMsg'),st=document.getElementById('msgStatus'),text=msgEl.value.trim();
@@ -591,9 +655,12 @@ function openArticle(idx,fromPopState=false){
   if(!stats[a.id])stats[a.id]={views:0,tokens:0,liked:false};
   stats[a.id].views++;saveStats(a.id);
   renderReader(a);
-  const m=document.getElementById('modal');m.classList.add('open');
+  const m=document.getElementById('modal');
+  const wasOpen=m.classList.contains('open');
+  m.classList.add('open');
   document.getElementById('modalScroll').scrollTop=0;
-  lockScroll();updateNavBtns();applyFont();showFabs(true);
+  if(!wasOpen) lockScroll();  // 只在第一次開啟時鎖定，navigate 時不重複計數
+  updateNavBtns();applyFont();showFabs(true);
   if(!fromPopState)history.pushState({modal:'article',idx},'','#'+a.num);
   if(window.innerWidth<768){
     const h=document.getElementById('swipeHint');h.classList.add('show');
@@ -765,12 +832,23 @@ const MILESTONES=[
   {year:'2035+',title:'系統接管',desc:'當我們都老去，這個 AI 將會接管整個伺服器，將所有人類變成檔案的一部分。',ms:true}
 ];
 function renderTimeline(){
-  const root=document.getElementById('timeline-root');let html='';
+  const root=document.getElementById('timeline-root');
+  root.innerHTML='';
   MILESTONES.forEach((m,i)=>{
-    const badge=m.badge?'<span class="tl-badge">'+m.badge+'</span>':'';
-    html+='<div class="tl-item'+(m.ms?' ms':'')+'" data-tl style="transition-delay:'+(i*.06)+'s"><div class="tl-dot"></div><div class="tl-year">'+m.year+'</div><div class="tl-title">'+m.title+badge+'</div><div class="tl-desc">'+m.desc+'</div></div>';
+    const item=document.createElement('div');
+    item.className='tl-item'+(m.ms?' ms':'');
+    item.setAttribute('data-tl','');
+    item.style.transitionDelay=(i*.06)+'s';
+
+    const dot=document.createElement('div');dot.className='tl-dot';
+    const year=document.createElement('div');year.className='tl-year';year.textContent=m.year;
+    const title=document.createElement('div');title.className='tl-title';title.textContent=m.title;
+    if(m.badge){const b=document.createElement('span');b.className='tl-badge';b.textContent=m.badge;title.appendChild(b);}
+    const desc=document.createElement('div');desc.className='tl-desc';desc.textContent=m.desc;
+
+    item.append(dot,year,title,desc);
+    root.appendChild(item);
   });
-  root.innerHTML=html;
 }
 let tlObs=null;
 function initTlObs(){
@@ -809,24 +887,64 @@ function toggleClassicMode(on,fromPopState=false){
 }
 function renderClassicIndex(fromPopState=false){
   const root=document.getElementById('classic-root');
-  let html='<h1>異象檔案 (Anomaly Archives)</h1><p><a href="#" onclick="toggleClassicMode(false,false);return false;">[ 返回圖形化介面 ]</a></p><hr><h2>卷宗目錄</h2><ul>';
-  ARTS.forEach((a,idx)=>{html+='<li><a href="#" onclick="renderClassicArticle('+idx+');return false;">['+escapeHTML(a.num)+'] '+sanitizeHTML(a.title)+'</a><br><small>'+sanitizeHTML(a.excerpt)+'</small></li>';});
-  html+='</ul><hr><p><small>本頁面為純文字版本。</small></p>';
-  root.innerHTML=html;window.scrollTo(0,0);
+  root.innerHTML='';
+
+  const h1=document.createElement('h1');h1.textContent='異象檔案 (Anomaly Archives)';
+  const backP=document.createElement('p');
+  const backA=document.createElement('a');backA.href='#';backA.textContent='[ 返回圖形化介面 ]';
+  backA.onclick=e=>{e.preventDefault();toggleClassicMode(false,false);};
+  backP.appendChild(backA);
+  const hr1=document.createElement('hr');
+  const h2=document.createElement('h2');h2.textContent='卷宗目錄';
+  const ul=document.createElement('ul');
+  ARTS.forEach((a,idx)=>{
+    const li=document.createElement('li');
+    const link=document.createElement('a');link.href='#';
+    link.textContent='['+a.num+'] '+a.title;
+    link.onclick=e=>{e.preventDefault();renderClassicArticle(idx,false);};
+    const br=document.createElement('br');
+    const sm=document.createElement('small');sm.textContent=a.excerpt;
+    li.append(link,br,sm);ul.appendChild(li);
+  });
+  const hr2=document.createElement('hr');
+  const foot=document.createElement('p');
+  const sm=document.createElement('small');sm.textContent='本頁面為純文字版本。';
+  foot.appendChild(sm);
+
+  root.append(h1,backP,hr1,h2,ul,hr2,foot);
+  window.scrollTo(0,0);
   if(!fromPopState)history.pushState({modal:'classic_index'},'','#classic');
 }
 function renderClassicArticle(idx,fromPopState=false){
   const a=ARTS[idx],root=document.getElementById('classic-root');
-  let html='<h1>'+sanitizeHTML(a.title)+'</h1><p><a href="#" onclick="renderClassicIndex(false);return false;">[ 回到目錄 ]</a></p><hr>';
-  html+='<div class="classic-meta">檔案編號: '+escapeHTML(a.num)+' | 建檔時間: '+escapeHTML(a.date)+' | 分類: '+a.tags.map(t=>escapeHTML(t[0])).join(', ')+'</div>';
+  root.innerHTML='';
+
+  const h1=document.createElement('h1');h1.textContent=a.title;
+  const backP=document.createElement('p');
+  const backA=document.createElement('a');backA.href='#';backA.textContent='[ 回到目錄 ]';
+  backA.onclick=e=>{e.preventDefault();renderClassicIndex(false);};
+  backP.appendChild(backA);
+  const hr1=document.createElement('hr');
+
+  const meta=document.createElement('div');meta.className='classic-meta';
+  meta.textContent='檔案編號: '+a.num+' | 建檔時間: '+a.date+' | 分類: '+a.tags.map(t=>t[0]).join(', ');
+
+  const frag=document.createDocumentFragment();
   a.body.forEach(b=>{
-    if(b.t==='p')html+='<p>'+sanitizeHTML(b.c)+'</p>';
-    else if(b.t==='q')html+='<blockquote>'+sanitizeHTML(b.c)+'</blockquote>';
-    else if(b.t==='br')html+='<p style="text-align:center;">***</p>';
-    else if(b.t==='img')html+='<p style="color:#555;">[圖片紀錄: '+escapeHTML(b.cap||'已遺失的影像數據')+']</p>';
+    if(b.t==='p'){const p=document.createElement('p');p.innerHTML=sanitizeHTML(b.c);frag.appendChild(p);}
+    else if(b.t==='q'){const bq=document.createElement('blockquote');bq.innerHTML=sanitizeHTML(b.c);frag.appendChild(bq);}
+    else if(b.t==='br'){const p=document.createElement('p');p.style.textAlign='center';p.textContent='***';frag.appendChild(p);}
+    else if(b.t==='img'){const p=document.createElement('p');p.style.color='#555';p.textContent='[圖片紀錄: '+(b.cap||'已遺失的影像數據')+']';frag.appendChild(p);}
   });
-  html+='<hr><p><a href="#" onclick="renderClassicIndex(false);return false;">[ 回到目錄 ]</a></p>';
-  root.innerHTML=html;window.scrollTo(0,0);
+
+  const hr2=document.createElement('hr');
+  const backP2=document.createElement('p');
+  const backA2=document.createElement('a');backA2.href='#';backA2.textContent='[ 回到目錄 ]';
+  backA2.onclick=e=>{e.preventDefault();renderClassicIndex(false);};
+  backP2.appendChild(backA2);
+
+  root.append(h1,backP,hr1,meta,frag,hr2,backP2);
+  window.scrollTo(0,0);
   if(!fromPopState)history.pushState({modal:'classic_article',idx},'','#classic-'+a.num);
 }
 
@@ -836,7 +954,24 @@ window.onload=()=>{
   window.addEventListener('orientationchange',()=>{
     setTimeout(()=>{ if(document.getElementById('modal').classList.contains('open')) applyFont(); },300);
   });
-  const hashStr=window.location.hash.replace('#','');
+  // 側邊欄滑動關閉手勢（只初始化一次，各自獨立的觸控起點）
+  (function(){
+    function addSwipe(el,closeFn,dir){
+      let tx=null;
+      el.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+      el.addEventListener('touchend',e=>{
+        if(tx===null)return;
+        const dx=e.changedTouches[0].clientX-tx;
+        if(Math.abs(dx)>60&&Math.sign(dx)===dir)closeFn();
+        tx=null;
+      },{passive:true});
+    }
+    addSwipe(document.getElementById('leftSidebar'),closeLeftSidebar,-1);
+    addSwipe(document.getElementById('rightSidebar'),closeRightSidebar,1);
+  })();
+  // hash 長度防禦：超過 32 字元視為無效
+  const rawHash=window.location.hash.replace('#','');
+  const hashStr=rawHash.length<=32?rawHash:'';
   const isClassicHash=hashStr==='classic'||hashStr.startsWith('classic-');
   if(isClassicHash||(!hashStr&&sGet('classicMode')==='1')){
     toggleClassicMode(true,true);
